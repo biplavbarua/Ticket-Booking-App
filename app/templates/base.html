@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Py-Booking — India's Smart Travel Platform</title>
+    <meta name="description" content="Book flights, trains, buses, and hotels across India with Py-Booking.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        brand: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af', 900:'#1e3a8a' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gray-950 text-gray-200 font-sans min-h-screen flex flex-col">
+
+    <!-- 🇮🇳 Tricolor Stripe -->
+    <div class="flex h-1">
+        <div class="flex-1 bg-orange-500"></div>
+        <div class="flex-1 bg-white"></div>
+        <div class="flex-1 bg-green-600"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="{{ url_for('main.index') }}" class="flex items-center gap-3 group">
+                    <div class="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center">
+                        <span class="text-white text-lg">☸</span>
+                    </div>
+                    <div class="leading-tight">
+                        <span class="text-lg font-bold text-white tracking-tight block">Py-Booking</span>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">Digital India (actually)</span>
+                    </div>
+                </a>
+
+                <!-- Main Nav Links -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="{{ url_for('flights.search_page') }}" class="nav-link">
+                        <i class="fa-solid fa-plane text-xs opacity-60"></i> Flights
+                    </a>
+                    <a href="{{ url_for('trains.search_page') }}" class="nav-link">
+                        <i class="fa-solid fa-train text-xs opacity-60"></i> Trains
+                    </a>
+                    <a href="{{ url_for('buses.search_page') }}" class="nav-link">
+                        <i class="fa-solid fa-bus text-xs opacity-60"></i> Buses
+                    </a>
+                    <a href="{{ url_for('hotels.search_page') }}" class="nav-link">
+                        <i class="fa-solid fa-hotel text-xs opacity-60"></i> Hotels
+                    </a>
+                </div>
+
+                <!-- Auth Links -->
+                <div class="flex items-center gap-3">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.profile') }}" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                            <i class="fa-solid fa-user text-xs mr-1 opacity-60"></i> {{ current_user.username }}
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="text-sm text-gray-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                            Log in
+                        </a>
+                        <a href="{{ url_for('auth.signup') }}" class="text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-1.5 rounded-lg transition-colors">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="max-w-4xl mx-auto px-4 mt-4 space-y-2">
+            {% for category, message in messages %}
+            <div class="flash-msg flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border
+                {% if category == 'error' %}bg-red-950/50 text-red-300 border-red-800/50
+                {% elif category == 'success' %}bg-emerald-950/50 text-emerald-300 border-emerald-800/50
+                {% elif category == 'warning' %}bg-amber-950/50 text-amber-300 border-amber-800/50
+                {% else %}bg-blue-950/50 text-blue-300 border-blue-800/50{% endif %}">
+                <i class="fa-solid {% if category == 'error' %}fa-circle-xmark{% elif category == 'success' %}fa-circle-check{% elif category == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 mt-16">
+        <div class="max-w-7xl mx-auto px-4 pt-12 pb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-2xl">🐍</span>
+                        <span class="text-lg font-bold text-white tracking-tight">Py-Booking</span>
+                    </div>
+                    <p class="text-sm text-gray-500 leading-relaxed max-w-xs">
+                        No <code class="text-blue-400 bg-blue-400/10 px-1 rounded text-xs">exceptions</code>. Just bookings.<br>
+                        Your <code class="text-blue-400 bg-blue-400/10 px-1 rounded text-xs">import travel</code> statement, simplified.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Quick Links</h4>
+                    <div class="space-y-2 text-sm">
+                        <a href="{{ url_for('flights.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">✈️ Flights</a>
+                        <a href="{{ url_for('trains.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">🚂 Trains</a>
+                        <a href="{{ url_for('buses.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">🚌 Buses</a>
+                        <a href="{{ url_for('hotels.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">🏨 Hotels</a>
+                    </div>
+                </div>
+
+                <!-- Fun Credits -->
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Under the Hood</h4>
+                    <div class="space-y-2 text-sm text-gray-500">
+                        <p>🐍 Powered by <span class="text-gray-300 font-medium">Python & Flask</span></p>
+                        <p>☕ Fueled by chai & <code class="text-orange-400/80 bg-orange-400/10 px-1 rounded text-xs">while True: code()</code></p>
+                        <p>🧳 <code class="text-blue-400 bg-blue-400/10 px-1 rounded text-xs">pip install wanderlust</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p class="text-xs text-gray-600">&copy; 2026 Py-Booking — All rights <code class="text-gray-500">reserved()</code></p>
+                <p class="text-xs text-gray-600">Built with <code class="text-red-400/80">&#60;3</code> and questionable <code class="text-gray-500">sleep()</code> schedules</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Loading Overlay -->
+    <div id="global-loader" class="fixed inset-0 z-[9999] bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+        <div class="w-10 h-10 border-3 border-gray-700 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+        <p id="loader-text" class="text-gray-300 text-sm font-medium">Loading...</p>
+    </div>
+
+    <!-- App JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

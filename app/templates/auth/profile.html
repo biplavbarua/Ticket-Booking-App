@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="col-span-1">
+        <div class="glass p-8 rounded-xl text-center">
+            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-3xl font-bold text-white mb-4">
+                {{ user.username[0]|upper }}
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">{{ user.username }}</h2>
+            <p class="text-gray-400 mb-6"><i class="fa-solid fa-envelope mr-2"></i>{{ user.email }}</p>
+            
+            <div class="border-t border-gray-700 pt-6 space-y-3 text-left">
+                <p class="text-gray-300"><i class="fa-solid fa-calendar text-indigo-400 mr-2"></i> Member since {{ user.created_at.strftime('%b %Y') if user.created_at else 'N/A' }}</p>
+                <p class="text-gray-300"><i class="fa-solid fa-ticket text-purple-400 mr-2"></i> {{ bookings|length }} Bookings</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-span-2 space-y-6">
+        <h3 class="text-2xl font-bold text-white border-b border-gray-700 pb-2">My Trips</h3>
+        
+        {% if bookings %}
+            {% for item in bookings %}
+                {% set b = item.booking %}
+                <div class="glass p-6 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 text-xs font-bold uppercase rounded bg-indigo-900/50 text-indigo-300 border border-indigo-700/50">
+                                {{ b.booking_type }}
+                            </span>
+                            <span class="text-gray-400 text-sm font-mono tracking-wider">Ref: #{{ b.id }}</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-white">{{ item.detail.label }}</h4>
+                        <p class="text-gray-400 text-sm">{{ item.detail.route }}</p>
+                        <p class="text-gray-400 text-sm mt-1"><i class="fa-regular fa-clock mr-1"></i> {{ item.detail.date }} • {{ b.num_guests }} Guest(s)</p>
+                    </div>
+                    
+                    <div class="text-left sm:text-right w-full sm:w-auto border-t border-gray-700 sm:border-t-0 pt-4 sm:pt-0">
+                        <div class="text-2xl font-bold text-indigo-400 mb-1">₹{{ "%.2f"|format(b.total_price) }}</div>
+                        <div class="text-sm font-bold uppercase {{ 'text-green-400' if b.status == 'Confirmed' else 'text-orange-400' if b.status == 'Pending' else 'text-red-400' }}">{{ b.status }}</div>
+                        
+                        {% if b.status != 'Cancelled' %}
+                        <form method="POST" action="{{ url_for('auth.cancel_booking', booking_id=b.id) }}" class="mt-3">
+                            <button type="submit" onclick="return confirm('Are you sure you want to cancel this booking?')" class="text-xs text-red-400 hover:text-red-300 underline">
+                                Cancel Booking
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="glass p-12 rounded-xl text-center text-gray-400">
+                <i class="fa-solid fa-suitcase-rolling text-4xl mb-4 text-gray-500"></i>
+                <p class="mb-4">You haven't booked any trips yet.</p>
+                <a href="{{ url_for('main.index') }}" class="inline-block bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-6 rounded-full transition-colors">Start Exploring</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

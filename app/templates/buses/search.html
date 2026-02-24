@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10">
+    <div class="glass p-8 rounded-xl relative overflow-hidden">
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-[80px] -ml-32 -mb-32 pointer-events-none"></div>
+
+        <h2 class="text-3xl font-bold mb-6 text-white"><i class="fa-solid fa-bus mr-3 text-orange-400"></i>Search Buses</h2>
+        
+        <form method="GET" action="{{ url_for('buses.search') }}" class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            <div>
+                <label for="origin" class="block text-sm font-medium text-gray-300">From City</label>
+                <input type="text" id="origin" name="origin" required placeholder="e.g. Bangalore"
+                       class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            
+            <div>
+                <label for="destination" class="block text-sm font-medium text-gray-300">To City</label>
+                <input type="text" id="destination" name="destination" required placeholder="e.g. Hyderabad"
+                       class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            
+            <div>
+                <label for="date" class="block text-sm font-medium text-gray-300">Date of Journey</label>
+                <input type="date" id="date" name="date" 
+                       class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+                 <label for="bus_type" class="block text-sm font-medium text-gray-300">Bus Type</label>
+                 <select id="bus_type" name="bus_type" class="mt-1 block w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                     <option value="">All Types</option>
+                     <option value="Sleeper">Sleeper</option>
+                     <option value="Semi-Sleeper">Semi-Sleeper</option>
+                     <option value="Seater">Seater</option>
+                 </select>
+            </div>
+            
+            <div class="md:col-span-2 flex justify-end items-end">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all w-full md:w-auto">
+                    Search Buses <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

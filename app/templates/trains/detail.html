@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-6">
+        <h2 class="text-2xl font-bold text-white mb-4">Passenger Details</h2>
+        
+        <div class="glass p-6 rounded-xl">
+            <form id="bookingForm" method="POST" action="{{ url_for('trains.book', train_id=train.id) }}">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Select Travel Class</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for cls, price in train.get_classes().items() %}
+                        <label class="cursor-pointer">
+                            <input type="radio" name="travel_class" value="{{ cls }}" class="peer sr-only" {% if loop.first %}checked{% endif %} onchange="updateSummary()">
+                            <div class="p-3 border border-gray-600 rounded-lg text-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500/20 hover:bg-white/5 transition-all">
+                                <div class="font-bold text-white mb-1">{{ cls }}</div>
+                                <div class="text-sm text-indigo-300">₹{{ "%.2f"|format(price) }}</div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="passengerContainer" class="space-y-6">
+                    <!-- Passenger 1 -->
+                    <div class="passenger-item border border-gray-700 rounded-lg p-4 bg-white/5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-indigo-300">Passenger 1</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                                <input type="text" name="passenger_names[]" required class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 border-b border-gray-700 pb-6">
+                    <button type="button" onclick="addPassenger()" class="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center">
+                        <i class="fa-solid fa-plus mr-1"></i> Add Another Passenger
+                    </button>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all">
+                        Proceed to Payment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar Summary -->
+    <div class="lg:col-span-1">
+        <div class="glass p-6 rounded-xl sticky top-24">
+            <h3 class="text-xl font-bold text-white mb-4">Booking Summary</h3>
+            
+            <div class="border-b border-gray-700 pb-4 mb-4">
+                <p class="text-sm text-indigo-300 font-bold mb-1">{{ train.name }} <span class="text-gray-400 font-normal">#{{ train.train_number }}</span></p>
+                <div class="flex justify-between items-center text-white">
+                    <div class="font-mono text-xl">{{ train.origin }}</div>
+                    <i class="fa-solid fa-train text-gray-500"></i>
+                    <div class="font-mono text-xl">{{ train.destination }}</div>
+                </div>
+                <p class="text-sm text-gray-400 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i> {{ train.departure.strftime('%b %d, %Y') }}</p>
+            </div>
+            
+            <div class="space-y-2 mb-6">
+                <div class="flex justify-between text-gray-300">
+                    <span>Class Selected</span>
+                    <span id="classSelectedSummary" class="font-bold"></span>
+                </div>
+                <div class="flex justify-between text-gray-300">
+                    <span>Price per Ticket</span>
+                    <span id="pricePerTicketSummary"></span>
+                </div>
+                <div class="flex justify-between text-gray-300">
+                    <span>Passengers</span>
+                    <span id="passengerCountSummary">1</span>
+                </div>
+            </div>
+            
+            <div class="pt-4 border-t border-gray-700">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-300">Total Amount</span>
+                    <span class="text-2xl font-bold text-indigo-400" id="totalPriceSummary">₹0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const classPrices = {{ train.get_classes() | tojson | safe }};
+    let passengerCount = 1;
+    const maxPassengers = Math.min({{ train.seats_available }}, 6);
+
+    function addPassenger() {
+        if (passengerCount >= maxPassengers) {
+            alert(`Maximum ${maxPassengers} passengers allowed for this booking.`);
+            return;
+        }
+        passengerCount++;
+        
+        const container = document.getElementById('passengerContainer');
+        const newPassenger = document.createElement('div');
+        newPassenger.className = 'passenger-item border border-gray-700 rounded-lg p-4 bg-white/5 relative mt-4';
+        newPassenger.innerHTML = `
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-indigo-300">Passenger ${passengerCount}</h4>
+                <button type="button" onclick="removePassenger(this)" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                    <input type="text" name="passenger_names[]" required class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+        `;
+        container.appendChild(newPassenger);
+        updateSummary();
+    }
+
+    function removePassenger(button) {
+        button.closest('.passenger-item').remove();
+        passengerCount--;
+        
+        // Re-number remaining passengers
+        const items = document.querySelectorAll('.passenger-item h4');
+        items.forEach((item, index) => {
+            item.textContent = `Passenger ${index + 1}`;
+        });
+        
+        updateSummary();
+    }
+
+    function updateSummary() {
+        // Find selected class
+        const selectedRadio = document.querySelector('input[name="travel_class"]:checked');
+        if (!selectedRadio) return;
+        
+        const selectedClass = selectedRadio.value;
+        const pricePer = classPrices[selectedClass] || 0;
+        const total = (pricePer * passengerCount).toFixed(2);
+        
+        document.getElementById('classSelectedSummary').textContent = selectedClass;
+        document.getElementById('pricePerTicketSummary').textContent = '₹' + pricePer.toFixed(2);
+        document.getElementById('passengerCountSummary').textContent = passengerCount;
+        document.getElementById('totalPriceSummary').textContent = '₹' + total;
+    }
+
+    // Initialize summary on page load
+    document.addEventListener('DOMContentLoaded', updateSummary);
+</script>
+{% endblock %}

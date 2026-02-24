@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <h1 class="hero-title">
+            <code class="text-brand-200 font-mono text-3xl md:text-5xl font-light opacity-50">>>> </code><span class="text-gradient">booking</span> != painful
+        </h1>
+        <p class="hero-subtitle">
+            What IRCTC could've been, if they <code class="font-mono text-brand-300 bg-white/5 px-2 py-0.5 rounded text-sm">pip install</code>'d better developers. ☕
+        </p>
+
+        <div class="search-widget mt-8">
+            <div class="tabs">
+                <button class="tab active" data-tab="flights">
+                    <i class="fa-solid fa-plane tab-icon"></i> Flights
+                </button>
+                <button class="tab" data-tab="trains">
+                    <i class="fa-solid fa-train tab-icon"></i> Trains
+                </button>
+                <button class="tab" data-tab="buses">
+                    <i class="fa-solid fa-bus tab-icon"></i> Buses
+                </button>
+                <button class="tab" data-tab="hotels">
+                    <i class="fa-solid fa-hotel tab-icon"></i> Hotels
+                </button>
+            </div>
+
+            <!-- FLIGHTS -->
+            <form id="form-flights" action="{{ url_for('flights.search') }}" method="GET" class="search-form tab-content active">
+                <div class="form-row text-left">
+                    <div class="form-group input-floating">
+                        <input type="text" name="origin" id="flight-origin" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-plane-departure input-icon"></i>
+                        <label for="flight-origin">From (e.g. Delhi)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="text" name="destination" id="flight-dest" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-plane-arrival input-icon"></i>
+                        <label for="flight-dest">To (e.g. Mumbai)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="date" name="date" id="flight-date" class="input" placeholder=" ">
+                        <i class="fa-regular fa-calendar input-icon"></i>
+                        <label for="flight-date">Departure</label>
+                    </div>
+                </div>
+                <div class="form-actions mt-4 text-center">
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Flights</button>
+                </div>
+            </form>
+
+            <!-- TRAINS -->
+            <form id="form-trains" action="{{ url_for('trains.search') }}" method="GET" class="search-form tab-content">
+                <div class="form-row text-left">
+                    <div class="form-group input-floating">
+                        <input type="text" name="origin" id="train-origin" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-train input-icon"></i>
+                        <label for="train-origin">From (e.g. New Delhi)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="text" name="destination" id="train-dest" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-train input-icon"></i>
+                        <label for="train-dest">To (e.g. Mumbai Central)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="date" name="date" id="train-date" class="input" placeholder=" ">
+                        <i class="fa-regular fa-calendar input-icon"></i>
+                        <label for="train-date">Journey Date</label>
+                    </div>
+                </div>
+                <div class="form-actions mt-4 text-center">
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Trains</button>
+                </div>
+            </form>
+            
+            <!-- BUSES -->
+            <form id="form-buses" action="{{ url_for('buses.search') }}" method="GET" class="search-form tab-content">
+                <div class="form-row text-left">
+                    <div class="form-group input-floating">
+                        <input type="text" name="origin" id="bus-origin" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-map-pin input-icon"></i>
+                        <label for="bus-origin">From (e.g. Delhi)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="text" name="destination" id="bus-dest" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-map-pin input-icon"></i>
+                        <label for="bus-dest">To (e.g. Jaipur)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="date" name="date" id="bus-date" class="input" placeholder=" ">
+                        <i class="fa-regular fa-calendar input-icon"></i>
+                        <label for="bus-date">Departure Date</label>
+                    </div>
+                </div>
+                <div class="form-actions mt-4 text-center">
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Buses</button>
+                </div>
+            </form>
+
+            <!-- HOTELS -->
+            <form id="form-hotels" action="{{ url_for('hotels.search') }}" method="GET" class="search-form tab-content">
+                <div class="form-row text-left">
+                    <div class="form-group input-floating">
+                        <input type="text" name="city" id="hotel-city" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <i class="fa-solid fa-city input-icon"></i>
+                        <label for="hotel-city">City (e.g. Mumbai)</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="date" name="check_in" id="hotel-check_in" class="input" placeholder=" " required>
+                        <i class="fa-solid fa-arrow-right-to-bracket input-icon"></i>
+                        <label for="hotel-check_in">Check-in</label>
+                    </div>
+                    <div class="form-group input-floating">
+                        <input type="date" name="check_out" id="hotel-check_out" class="input" placeholder=" " required>
+                        <i class="fa-solid fa-arrow-right-from-bracket input-icon"></i>
+                        <label for="hotel-check_out">Check-out</label>
+                    </div>
+                </div>
+                <div class="form-actions mt-4 text-center">
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Hotels</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="features mt-12 mb-20 text-center">
+    <h2 class="text-3xl font-bold mb-3 text-white">Why <span class="text-orange-400">not</span> IRCTC?</h2>
+    <p class="text-gray-500 text-sm mb-12">We asked ourselves <code class="text-blue-400/80 bg-blue-400/10 px-1.5 rounded text-xs">if irctc.works(): return False</code></p>
+    <div class="features-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="feature-card">
+            <i class="fa-solid fa-bolt feature-icon text-orange-400"></i>
+            <h3>Faster than Tatkal</h3>
+            <p>Our servers don't crash at 10&nbsp;AM.<br><code class="text-blue-400/60 text-xs">response_time &lt; 100ms</code></p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-lock feature-icon text-green-400"></i>
+            <h3><code class="text-sm">password != '123456'</code></h3>
+            <p>Unlike some govt portals, we actually hash your passwords. Revolutionary.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-server feature-icon text-blue-400"></i>
+            <h3>Works on Tatkal Day</h3>
+            <p>No <code class="text-red-400/60 text-xs">503 Service Unavailable</code>.<br>We tested. Twice, even.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-ticket feature-icon text-purple-400"></i>
+            <h3><code class="text-sm">print(ticket)</code></h3>
+            <p>No CAPTCHAs that look like modern art. Just click and book.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

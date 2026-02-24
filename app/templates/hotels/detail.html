@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-8">
+    <!-- Hotel Header -->
+    <div class="glass p-8 rounded-xl mb-8 relative overflow-hidden flex flex-col md:flex-row gap-8 items-center">
+        {% if hotel.image_url %}
+            <div class="absolute inset-0 object-cover opacity-20 bg-cover bg-center mix-blend-luminosity" style="background-image: url('{{ hotel.image_url }}')"></div>
+        {% endif %}
+        
+        <div class="relative z-10 flex-1">
+            <div class="flex items-center gap-3 mb-2">
+                <h1 class="text-4xl font-bold text-white">{{ hotel.name }}</h1>
+                <div class="flex text-yellow-400 text-sm">
+                    {% for i in range(hotel.star_rating) %}
+                        <i class="fa-solid fa-star"></i>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="text-gray-300 text-lg mb-4"><i class="fa-solid fa-location-dot mr-2"></i>{{ hotel.address }}, {{ hotel.city }}</p>
+            <p class="text-gray-400 max-w-2xl leading-relaxed">{{ hotel.description }}</p>
+            
+            <div class="mt-6 flex flex-wrap gap-2">
+                {% for amenity in hotel.amenities %}
+                    <span class="px-3 py-1 bg-black/30 border border-gray-600 rounded-full text-xs text-gray-300">
+                        {{ amenity.name }}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+            <h2 class="text-2xl font-bold text-white mb-4">Available Rooms</h2>
+            
+            <div class="space-y-4">
+                {% for room in hotel.rooms %}
+                <div class="glass p-6 rounded-xl flex flex-col md:flex-row justify-between gap-6 border-2 border-transparent hover:border-indigo-500/30 transition-colors cursor-pointer" onclick="selectRoom('{{ room.id }}', '{{ room.room_type }}', parseFloat('{{ room.price_per_night }}'), parseInt('{{ room.rooms_available }}'))">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-indigo-300 mb-1">{{ room.room_type }}</h3>
+                        <p class="text-sm text-gray-400 mb-3"><i class="fa-solid fa-bed mr-1"></i> Max Occupancy: 2 Adults</p>
+                        
+                        <div class="space-y-1">
+                            <p class="text-xs text-green-400"><i class="fa-solid fa-check mr-1"></i> Free cancellation</p>
+                            <p class="text-xs text-green-400"><i class="fa-solid fa-check mr-1"></i> No prepayment needed</p>
+                            {% if room.rooms_available < 3 %}
+                                <p class="text-xs text-orange-400 font-bold mt-2"><i class="fa-solid fa-fire mr-1"></i> Only {{ room.rooms_available }} left on our site!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-end justify-center md:border-l border-gray-700/50 md:pl-6">
+                        <p class="text-sm text-gray-400 mb-1">Price for 1 night</p>
+                        <p class="text-3xl font-bold text-white mb-4">₹{{ "%.2f"|format(room.price_per_night) }}</p>
+                        <button class="bg-white/10 hover:bg-indigo-600 text-white font-medium py-2 px-6 rounded-lg transition-colors border border-gray-600 hover:border-transparent select-room-btn w-full" data-room-id="{{ room.id }}">
+                            Select
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Booking Form Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="glass p-6 rounded-xl sticky top-24">
+                <h3 class="text-xl font-bold text-white mb-4">Reservation Details</h3>
+                
+                <form id="bookingForm" method="POST" action="{{ url_for('hotels.book', hotel_id=hotel.id) }}">
+                    <input type="hidden" name="room_id" id="selectedRoomId" required>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Check-in</label>
+                            <input type="date" id="check_in" name="check_in" value="{{ request.args.get('check_in', '') }}" required class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500" onchange="calculateTotal()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Check-out</label>
+                            <input type="date" id="check_out" name="check_out" value="{{ request.args.get('check_out', '') }}" required class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500" onchange="calculateTotal()">
+                        </div>
+                        <div>
+                             <label class="block text-sm font-medium text-gray-400 mb-1">Guest Name (Primary)</label>
+                             <input type="text" name="guest_name" required value="{{ current_user.username if current_user.is_authenticated else '' }}" class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <div id="summarySection" class="hidden pb-4 mb-4 border-b border-gray-700">
+                        <div class="flex justify-between text-indigo-300 font-bold mb-2">
+                            <span id="summaryRoomType"></span>
+                        </div>
+                        <div class="flex justify-between text-gray-400 text-sm mb-1">
+                            <span>₹ <span id="summaryPricePerNight">0</span> x <span id="summaryNights">0</span> nights</span>
+                            <span id="summarySubtotal">₹0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-white font-medium">Total Price</span>
+                            <span class="text-2xl font-bold text-indigo-400" id="summaryTotal">₹0.00</span>
+                        </div>
+                        <button type="submit" id="submitBtn" disabled class="w-full bg-gray-600 text-white/50 font-medium py-3 px-4 rounded-lg cursor-not-allowed transition-colors">
+                            Select a room first
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentRoomPrice = 0;
+
+    function selectRoom(roomId, roomType, price, available) {
+        if (available <= 0) {
+            alert('This room is fully booked.');
+            return;
+        }
+
+        // Update form hidden input
+        document.getElementById('selectedRoomId').value = roomId;
+        
+        // Update visual selection
+        document.querySelectorAll('.select-room-btn').forEach(btn => {
+            if (btn.dataset.roomId === roomId) {
+                btn.textContent = 'Selected';
+                btn.className = 'bg-indigo-600 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg shadow-indigo-500/30 select-room-btn w-full';
+                btn.closest('.glass').classList.add('border-indigo-500');
+                btn.closest('.glass').classList.remove('border-transparent');
+            } else {
+                btn.textContent = 'Select';
+                btn.className = 'bg-white/10 hover:bg-indigo-600 text-white font-medium py-2 px-6 rounded-lg transition-colors border border-gray-600 hover:border-transparent select-room-btn w-full';
+                btn.closest('.glass').classList.remove('border-indigo-500');
+                btn.closest('.glass').classList.add('border-transparent');
+            }
+        });
+
+        // Update Summary variables
+        currentRoomPrice = price;
+        document.getElementById('summaryRoomType').textContent = roomType;
+        document.getElementById('summaryPricePerNight').textContent = price.toFixed(2);
+        
+        // Enable submit button
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = false;
+        btn.className = 'w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/30 transition-all';
+        btn.textContent = 'Reserve Now';
+
+        document.getElementById('summarySection').classList.remove('hidden');
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        const checkIn = new Date(document.getElementById('check_in').value);
+        const checkOut = new Date(document.getElementById('check_out').value);
+        
+        if (checkIn && checkOut && checkOut > checkIn && currentRoomPrice > 0) {
+            const timeDiff = checkOut.getTime() - checkIn.getTime();
+            const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            document.getElementById('summaryNights').textContent = nights;
+            const total = (nights * currentRoomPrice).toFixed(2);
+            document.getElementById('summarySubtotal').textContent = '₹' + total;
+            document.getElementById('summaryTotal').textContent = '₹' + total;
+        } else {
+            document.getElementById('summaryNights').textContent = '0';
+            document.getElementById('summarySubtotal').textContent = '₹0.00';
+            document.getElementById('summaryTotal').textContent = '₹0.00';
+        }
+    }
+
+    // Set min date constraints
+    const today = new Date().toISOString().split('T')[0];
+    const checkInInput = document.getElementById('check_in');
+    const checkOutInput = document.getElementById('check_out');
+    
+    checkInInput.min = today;
+    
+    checkInInput.addEventListener('change', function() {
+        if (this.value) {
+            checkOutInput.min = this.value;
+            if (checkOutInput.value && checkOutInput.value <= this.value) {
+                const nextDay = new Date(this.value);
+                nextDay.setDate(nextDay.getDate() + 1);
+                checkOutInput.value = nextDay.toISOString().split('T')[0];
+            }
+            calculateTotal();
+        }
+    });
+
+    // Run calculation once on load if dates exist
+    calculateTotal();
+</script>
+{% endblock %}

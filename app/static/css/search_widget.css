@@ -1,0 +1,34 @@
+/* ====== Custom Styles for floating labels ====== */
+/* This is an override for select specifically in the floating layout */
+.input-floating select.input {
+    padding: 24px 36px 8px 48px;
+}
+
+/* Adjust the form row layout to match Ixigo more closely (horizontal boxes) */
+@media (min-width: 768px) {
+    .search-form .form-row {
+        gap: 0;
+        background: var(--bg-white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 4px;
+    }
+    .search-form .form-group {
+        position: relative;
+        margin-bottom: 0;
+        border-right: 1px solid var(--border);
+    }
+    .search-form .form-group:last-child {
+        border-right: none;
+    }
+    .input-floating .input {
+        border: none;
+        border-radius: 0;
+        background: transparent;
+    }
+    .input-floating .input:focus,
+    .input-floating .input:not(:placeholder-shown) {
+        box-shadow: none;
+        background: rgba(26,115,232,0.02);
+    }
+}

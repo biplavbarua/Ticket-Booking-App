@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-8">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-white mb-2">Train Results</h2>
+            <p class="text-gray-400">
+                {{ query.origin }} to {{ query.destination }}
+                {% if query.date %}| Date: {{ query.date }}{% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('trains.search_page') }}" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium"><i class="fa-solid fa-pen mr-1"></i>Edit Search</a>
+        </div>
+    </div>
+
+    {% if trains %}
+        <div class="results-list">
+            {% for train in trains %}
+            <div class="result-card result-card--train">
+                <div class="result-card-left">
+                    <span class="result-airline">{{ train.name }}</span>
+                    <span class="result-number">#{{ train.train_number }}</span>
+                </div>
+                
+                <div class="result-card-center">
+                    <div class="result-time">
+                        <span class="time-big">{{ train.departure.strftime('%H:%M') }}</span>
+                        <span class="time-code">{{ train.origin }}</span>
+                    </div>
+                    <div class="result-duration">
+                        <div class="duration-line"></div>
+                        <span class="duration-text"><i class="fa-solid fa-train"></i></span>
+                        <div class="duration-line"></div>
+                    </div>
+                    <div class="result-time">
+                        <span class="time-big">{{ train.arrival.strftime('%H:%M') }}</span>
+                        <span class="time-code">{{ train.destination }}</span>
+                    </div>
+                </div>
+
+                <div class="result-card-right">
+                    <span class="result-price"><small>₹</small>{{ "%.2f"|format(train.get_classes().values()|min if train.get_classes() else 0) }}</span>
+                    <span class="result-seats"><i class="fa-solid fa-check-circle" style="color:var(--success)"></i> {{ train.seats_available }} seats Avl</span>
+                    <a href="{{ url_for('trains.detail', train_id=train.id) }}" class="btn btn--primary btn--full mt-2">Check Classes</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass p-12 rounded-xl text-center">
+            <i class="fa-solid fa-train text-5xl text-gray-600 mb-4 opacity-50"></i>
+            <h3 class="text-xl font-bold text-white mb-2">No Trains Found</h3>
+            <p class="text-gray-400 mb-6">We couldn't find any trains matching your search criteria.</p>
+            <a href="{{ url_for('trains.search_page') }}" class="bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-6 rounded-lg transition-colors">Try Another Search</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
