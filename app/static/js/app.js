@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ── Global Loading State for Forms and Actions ──
-  const searchForms = document.querySelectorAll("form");
+  const searchForms = document.querySelectorAll("form:not(.cancel-form)");
   const loader = document.getElementById("global-loader");
   const loaderText = document.getElementById("loader-text");
 

@@ -41,11 +41,14 @@
                         <div class="text-sm font-bold uppercase {{ 'text-green-400' if b.status == 'Confirmed' else 'text-orange-400' if b.status == 'Pending' else 'text-red-400' }}">{{ b.status }}</div>
                         
                         {% if b.status != 'Cancelled' %}
-                        <form method="POST" action="{{ url_for('auth.cancel_booking', booking_id=b.id) }}" class="mt-3">
-                            <button type="submit" onclick="return confirm('Are you sure you want to cancel this booking?')" class="text-xs text-red-400 hover:text-red-300 underline">
+                        <div class="mt-3" id="cancel-wrapper-{{ b.id }}">
+                            <button type="button" 
+                                    class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer cancel-trigger"
+                                    data-booking-id="{{ b.id }}"
+                                    data-cancel-url="{{ url_for('auth.cancel_booking', booking_id=b.id) }}">
                                 Cancel Booking
                             </button>
-                        </form>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -59,4 +62,65 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancel-modal" class="fixed inset-0 z-[9999] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center relative">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+                <i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white mb-2">Cancel Booking?</h4>
+            <p class="text-gray-400 text-sm mb-6">This action cannot be undone. Your booking will be cancelled and seats will be released.</p>
+            <div class="flex gap-3 justify-center">
+                <form id="cancel-form-action" method="POST" action="">
+                    <button type="submit" class="px-5 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+                        Yes, Cancel It
+                    </button>
+                </form>
+                <button type="button" id="cancel-modal-close" class="px-5 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                    No, Keep It
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('cancel-modal');
+    const form = document.getElementById('cancel-form-action');
+    const closeBtn = document.getElementById('cancel-modal-close');
+
+    // Open modal on "Cancel Booking" click
+    document.querySelectorAll('.cancel-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.action = btn.getAttribute('data-cancel-url');
+            modal.classList.remove('hidden');
+        });
+    });
+
+    // Close modal on "No, Keep It"
+    closeBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    // Close on backdrop click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal || e.target === modal.firstElementChild) {
+            modal.classList.add('hidden');
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+        }
+    });
+});
+</script>
 {% endblock %}
