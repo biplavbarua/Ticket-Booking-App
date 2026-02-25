@@ -6,10 +6,10 @@
 </p>
 
 <h1 align="center">🐍 Py-Booking</h1>
-<h4 align="center"><code>>>> booking != painful</code></h4>
+<h4 align="center">Your Journey, One Click Away</h4>
 <p align="center">
   A full-stack travel booking platform built with Python & Flask.<br>
-  <i>What IRCTC could've been, if they <code>pip install</code>'d better developers.</i>
+  <i>Flights, trains, buses & hotels — all in one place.</i>
 </p>
 
 ---
@@ -28,7 +28,7 @@
 | 🚌 **Buses**    | Filter by type (Sleeper/Semi-Sleeper/Seater), operator-wise results           |
 | 🏨 **Hotels**   | City search, room type selection, date-based availability                     |
 | 🔐 **Auth**     | Signup, Login, Logout with hashed passwords (PBKDF2-SHA256)                   |
-| 👤 **Profile**  | View booking history, cancel bookings, manage account                         |
+| 👤 **Profile**  | View booking history, cancel bookings with confirmation modal                 |
 | 💳 **Payments** | Mock payment gateway with booking confirmation & PNR generation               |
 
 ## 🏗️ Tech Stack
@@ -115,7 +115,12 @@ erDiagram
 
 ## 🎨 Design
 
-The UI is a deliberate parody of Indian government booking portals — featuring a tricolor stripe, Ashoka Chakra–inspired logo, and tongue-in-cheek copy like _"Faster than Tatkal"_ and _"`password != '123456'`"_. Built with a professional dark theme using Tailwind CSS and custom CSS variables.
+The UI features a premium dark theme with a modern, professional aesthetic. Highlights include:
+
+- **Tricolor stripe** & Ashoka Chakra–inspired logo for an Indian identity
+- **Witty feature cards** — _"Faster than Tatkal"_, _"Fort Knox Security"_, _"Zero Downtime"_, _"No CAPTCHA Nightmares"_
+- **Custom cancel modal** — a polished confirmation dialog for booking cancellations
+- Built with **Tailwind CSS** (CDN) and **custom CSS variables**
 
 ## 📊 Seed Data
 
@@ -130,11 +135,10 @@ The `seed_data.py` script generates realistic travel data:
 
 - **Bhanu Teja Sir** — for supervising the PEP class and this project
 - **Flask & SQLAlchemy** — for making Python web development a joy
-- **IRCTC** — for the _inspiration_ ☕
 
 ---
 
 <p align="center">
-  <code>No exceptions. Just bookings.</code><br>
-  <sub>Built with <code>&lt;3</code> and questionable <code>sleep()</code> schedules.</sub>
+  No errors. Just bookings.<br>
+  <sub>Built with ❤️ and questionable sleep schedules.</sub>
 </p>
