@@ -166,6 +166,37 @@
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15) !important;
 }
 
+/* Gray buttons (PNR check, disabled states) */
+[data-theme="light"] .bg-gray-700 {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+[data-theme="light"] .bg-gray-600 {
+  background: #cbd5e1 !important;
+  color: #334155 !important;
+}
+[data-theme="light"] .hover\:bg-gray-600:hover {
+  background: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+/* Link text colors that should remain visible */
+[data-theme="light"] .text-indigo-300 {
+  color: #4f46e5 !important;
+}
+[data-theme="light"] .hover\:text-indigo-300:hover {
+  color: #4338ca !important;
+}
+[data-theme="light"] .text-indigo-400 {
+  color: #4f46e5 !important;
+}
+
+/* Loader text */
+[data-theme="light"] .text-gray-300#loader-text,
+[data-theme="light"] #loader-text {
+  color: #334155 !important;
+}
+
 /* --- Theme Toggle Button --- */
 .theme-toggle {
   width: 36px;
