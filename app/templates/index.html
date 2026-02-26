@@ -153,4 +153,27 @@
         </div>
     </div>
 </div>
+
+<div class="destinations">
+    <h2 class="text-3xl font-bold mb-3 text-white">Popular <span class="text-gradient">Destinations</span></h2>
+    <p class="text-gray-500 text-sm">Where India loves to travel. Pick a city, we'll handle the rest.</p>
+    <div class="destinations-grid">
+        <div class="dest-card">
+            <img src="{{ url_for('static', filename='images/delhi.png') }}" alt="Delhi cityscape featuring India Gate at dusk" loading="lazy">
+            <span class="dest-tag"><i class="fa-solid fa-fire"></i> Trending</span>
+            <div class="dest-overlay">
+                <h3>Delhi</h3>
+                <p>Heritage, history & street food paradise</p>
+            </div>
+        </div>
+        <div class="dest-card">
+            <img src="{{ url_for('static', filename='images/mumbai.png') }}" alt="Mumbai skyline at sunset with Gateway of India" loading="lazy">
+            <span class="dest-tag"><i class="fa-solid fa-star"></i> Popular</span>
+            <div class="dest-overlay">
+                <h3>Mumbai</h3>
+                <p>City of dreams, Bollywood & marine drives</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
