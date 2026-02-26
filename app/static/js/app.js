@@ -261,10 +261,21 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
+    const formatBotReply = (text) => {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n/g, "<br>")
+        .replace(/•/g, "&bull;");
+    };
+
     const addMsg = (text, type) => {
       const div = document.createElement("div");
       div.className = `chat-msg chat-msg--${type}`;
-      div.textContent = text;
+      if (type === "bot") {
+        div.innerHTML = formatBotReply(text);
+      } else {
+        div.textContent = text;
+      }
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     };

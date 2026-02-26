@@ -44,6 +44,128 @@
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.1);
 }
 
+/* Force hardcoded Tailwind dark colors to adapt in light mode */
+[data-theme="light"] .text-white {
+  color: var(--text) !important;
+}
+[data-theme="light"] .text-gray-300,
+[data-theme="light"] .text-gray-400 {
+  color: #334155 !important;
+}
+[data-theme="light"] .text-gray-500 {
+  color: #64748b !important;
+}
+[data-theme="light"] .text-gray-600 {
+  color: #475569 !important;
+}
+
+/* Navbar & footer links */
+[data-theme="light"] .hover\:text-white:hover {
+  color: var(--primary) !important;
+}
+[data-theme="light"] .hover\:bg-gray-800:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Borders */
+[data-theme="light"] .border-gray-600 {
+  border-color: #cbd5e1 !important;
+}
+[data-theme="light"] .border-gray-700 {
+  border-color: #cbd5e1 !important;
+}
+[data-theme="light"] .border-gray-800 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Input / form backgrounds */
+[data-theme="light"] .bg-white\/5 {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+[data-theme="light"] .bg-black\/50 {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+[data-theme="light"] .bg-black\/30 {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+[data-theme="light"] .bg-white\/10 {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Loader overlay */
+[data-theme="light"] .bg-gray-950\/80 {
+  background: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Flash messages */
+[data-theme="light"] .bg-red-950\/50 { background: rgba(254,226,226,0.7) !important; }
+[data-theme="light"] .bg-emerald-950\/50 { background: rgba(209,250,229,0.7) !important; }
+[data-theme="light"] .bg-amber-950\/50 { background: rgba(254,243,199,0.7) !important; }
+[data-theme="light"] .bg-blue-950\/50 { background: rgba(219,234,254,0.7) !important; }
+[data-theme="light"] .text-red-300 { color: #dc2626 !important; }
+[data-theme="light"] .text-emerald-300 { color: #059669 !important; }
+[data-theme="light"] .text-amber-300 { color: #d97706 !important; }
+[data-theme="light"] .text-blue-300 { color: #2563eb !important; }
+[data-theme="light"] .border-red-800\/50 { border-color: #fca5a5 !important; }
+[data-theme="light"] .border-emerald-800\/50 { border-color: #6ee7b7 !important; }
+[data-theme="light"] .border-amber-800\/50 { border-color: #fcd34d !important; }
+[data-theme="light"] .border-blue-800\/50 { border-color: #93c5fd !important; }
+
+/* Select & option elements */
+[data-theme="light"] select option {
+  background: #fff;
+  color: #0f172a;
+}
+
+/* Override result cards that use inline or Tailwind dark backgrounds */
+[data-theme="light"] .bg-gray-900\/50,
+[data-theme="light"] .bg-gray-900,
+[data-theme="light"] .bg-gray-800,
+[data-theme="light"] .bg-gray-800\/50 {
+  background: #fff !important;
+  border: 1px solid #e2e8f0;
+}
+
+/* Payment / detail page dark containers */
+[data-theme="light"] .bg-black\/40 {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+[data-theme="light"] .bg-black\/20 {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+[data-theme="light"] .bg-black\/60 {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+[data-theme="light"] .border-gray-700\/50 {
+  border-color: #e2e8f0 !important;
+}
+
+/* "Try Another Search" and action buttons */
+[data-theme="light"] .bg-white\/10 {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+[data-theme="light"] .hover\:bg-white\/20:hover,
+[data-theme="light"] .bg-white\/20 {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+[data-theme="light"] .hover\:bg-white\/5:hover,
+[data-theme="light"] .bg-white\/5 {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Indigo accent backgrounds for selected items */
+[data-theme="light"] .peer-checked\:bg-indigo-500\/20 {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Shadows in search/result containers */
+[data-theme="light"] .shadow-indigo-500\/30 {
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15) !important;
+}
+[data-theme="light"] .shadow-green-500\/20 {
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15) !important;
+}
+
 /* --- Theme Toggle Button --- */
 .theme-toggle {
   width: 36px;
