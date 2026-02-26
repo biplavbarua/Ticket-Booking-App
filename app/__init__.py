@@ -42,6 +42,7 @@ def create_app(config_name=None):
     from app.blueprints.hotels import hotels_bp
     from app.blueprints.payment import payment_bp
     from app.blueprints.api import api_bp
+    from app.blueprints.chatbot import chatbot_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -51,6 +52,7 @@ def create_app(config_name=None):
     app.register_blueprint(hotels_bp, url_prefix='/hotels')
     app.register_blueprint(payment_bp, url_prefix='/payment')
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(chatbot_bp, url_prefix='/api/chat')
 
     # --- Create tables if they don't exist (dev convenience) ---
     with app.app_context():

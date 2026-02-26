@@ -1,85 +1,140 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-    <div class="col-span-1">
-        <div class="glass p-8 rounded-xl text-center">
-            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-3xl font-bold text-white mb-4">
+<!-- Trip Dashboard Header -->
+<div class="max-w-6xl mx-auto mt-8 px-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
                 {{ user.username[0]|upper }}
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">{{ user.username }}</h2>
-            <p class="text-gray-400 mb-6"><i class="fa-solid fa-envelope mr-2"></i>{{ user.email }}</p>
-            
-            <div class="border-t border-gray-700 pt-6 space-y-3 text-left">
-                <p class="text-gray-300"><i class="fa-solid fa-calendar text-indigo-400 mr-2"></i> Member since {{ user.created_at.strftime('%b %Y') if user.created_at else 'N/A' }}</p>
-                <p class="text-gray-300"><i class="fa-solid fa-ticket text-purple-400 mr-2"></i> {{ bookings|length }} Bookings</p>
+            <div>
+                <h1 class="text-2xl font-bold" style="color:var(--text)">{{ user.username }}'s Dashboard</h1>
+                <p style="color:var(--text-muted)" class="text-sm"><i class="fa-solid fa-envelope mr-1"></i>{{ user.email }}</p>
             </div>
         </div>
     </div>
-    
-    <div class="col-span-2 space-y-6">
-        <h3 class="text-2xl font-bold text-white border-b border-gray-700 pb-2">My Trips</h3>
-        
-        {% if bookings %}
-            {% for item in bookings %}
-                {% set b = item.booking %}
-                <div class="glass p-6 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="px-2 py-1 text-xs font-bold uppercase rounded bg-indigo-900/50 text-indigo-300 border border-indigo-700/50">
-                                {{ b.booking_type }}
-                            </span>
-                            <span class="text-gray-400 text-sm font-mono tracking-wider">Ref: #{{ b.id }}</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-white">{{ item.detail.label }}</h4>
-                        <p class="text-gray-400 text-sm">{{ item.detail.route }}</p>
-                        <p class="text-gray-400 text-sm mt-1"><i class="fa-regular fa-clock mr-1"></i> {{ item.detail.date }} • {{ b.num_guests }} Guest(s)</p>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(99,102,241,0.15);color:#818cf8">
+                <i class="fa-solid fa-route"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_trips }}</div>
+            <div class="stat-label">Total Trips</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:#34d399">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+            <div class="stat-value">₹{{ "%.0f"|format(stats.total_spent) }}</div>
+            <div class="stat-label">Money Spent</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(249,115,22,0.15);color:#fb923c">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div class="stat-value">{{ stats.top_city }}</div>
+            <div class="stat-label">Top City</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(168,85,247,0.15);color:#c084fc">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div class="stat-value">{{ user.created_at.strftime('%b %Y') if user.created_at else 'N/A' }}</div>
+            <div class="stat-label">Member Since</div>
+        </div>
+    </div>
+
+    <!-- Type Breakdown -->
+    {% if stats.type_breakdown %}
+    <div class="flex flex-wrap gap-3 mb-8">
+        {% for btype, count in stats.type_breakdown.items() %}
+        <span class="type-badge type-badge--{{ btype }}">
+            {% if btype == 'flight' %}<i class="fa-solid fa-plane"></i>
+            {% elif btype == 'train' %}<i class="fa-solid fa-train"></i>
+            {% elif btype == 'bus' %}<i class="fa-solid fa-bus"></i>
+            {% elif btype == 'hotel' %}<i class="fa-solid fa-hotel"></i>
+            {% endif %}
+            {{ count }} {{ btype|capitalize }}{{ 's' if count > 1 }}
+        </span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Bookings List -->
+    <h3 class="text-xl font-bold mb-4" style="color:var(--text);border-bottom:1px solid var(--border);padding-bottom:8px">My Trips</h3>
+
+    {% if bookings %}
+        <div class="space-y-4 mb-12">
+        {% for item in bookings %}
+            {% set b = item.booking %}
+            <div class="glass p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="px-2 py-1 text-xs font-bold uppercase rounded" style="background:var(--primary-light);color:var(--primary)">
+                            {{ b.booking_type }}
+                        </span>
+                        <span style="color:var(--text-muted)" class="text-sm font-mono tracking-wider">PNR: {{ b.pnr or '—' }}</span>
                     </div>
+                    <h4 class="text-lg font-bold" style="color:var(--text)">{{ item.detail.label }}</h4>
+                    <p style="color:var(--text-muted)" class="text-sm">{{ item.detail.route }}</p>
+                    <p style="color:var(--text-muted)" class="text-sm mt-1"><i class="fa-regular fa-clock mr-1"></i> {{ item.detail.date }} • {{ b.num_guests }} Guest(s)</p>
+                </div>
+                
+                <div class="text-left sm:text-right w-full sm:w-auto pt-4 sm:pt-0" style="border-top:1px solid var(--border)">
+                    <div class="text-2xl font-bold mb-1" style="color:var(--primary)">₹{{ "%.2f"|format(b.total_price) }}</div>
+                    <div class="text-sm font-bold uppercase {{ 'text-green-400' if b.status == 'Confirmed' else 'text-orange-400' if b.status == 'Pending' else 'text-red-400' }}">{{ b.status }}</div>
                     
-                    <div class="text-left sm:text-right w-full sm:w-auto border-t border-gray-700 sm:border-t-0 pt-4 sm:pt-0">
-                        <div class="text-2xl font-bold text-indigo-400 mb-1">₹{{ "%.2f"|format(b.total_price) }}</div>
-                        <div class="text-sm font-bold uppercase {{ 'text-green-400' if b.status == 'Confirmed' else 'text-orange-400' if b.status == 'Pending' else 'text-red-400' }}">{{ b.status }}</div>
-                        
+                    <div class="mt-3 flex flex-wrap gap-3">
+                        {% if b.status == 'Confirmed' %}
+                        <button type="button" 
+                                class="text-xs text-indigo-400 hover:text-indigo-300 underline cursor-pointer review-trigger"
+                                data-booking-type="{{ b.booking_type }}"
+                                data-ref-id="{{ b.ref_id }}">
+                            ⭐ Rate Trip
+                        </button>
+                        {% endif %}
                         {% if b.status != 'Cancelled' %}
-                        <div class="mt-3" id="cancel-wrapper-{{ b.id }}">
-                            <button type="button" 
-                                    class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer cancel-trigger"
-                                    data-booking-id="{{ b.id }}"
-                                    data-cancel-url="{{ url_for('auth.cancel_booking', booking_id=b.id) }}">
-                                Cancel Booking
-                            </button>
-                        </div>
+                        <button type="button" 
+                                class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer cancel-trigger"
+                                data-booking-id="{{ b.id }}"
+                                data-cancel-url="{{ url_for('auth.cancel_booking', booking_id=b.id) }}">
+                            Cancel Booking
+                        </button>
                         {% endif %}
                     </div>
                 </div>
-            {% endfor %}
-        {% else %}
-            <div class="glass p-12 rounded-xl text-center text-gray-400">
-                <i class="fa-solid fa-suitcase-rolling text-4xl mb-4 text-gray-500"></i>
-                <p class="mb-4">You haven't booked any trips yet.</p>
-                <a href="{{ url_for('main.index') }}" class="inline-block bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-6 rounded-full transition-colors">Start Exploring</a>
             </div>
-        {% endif %}
-    </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass p-12 rounded-xl text-center" style="color:var(--text-muted)">
+            <i class="fa-solid fa-suitcase-rolling text-4xl mb-4" style="color:var(--text-light)"></i>
+            <p class="mb-4">You haven't booked any trips yet.</p>
+            <a href="{{ url_for('main.index') }}" class="inline-block bg-white/10 hover:bg-white/20 font-medium py-2 px-6 rounded-full transition-colors" style="color:var(--text)">Start Exploring</a>
+        </div>
+    {% endif %}
 </div>
 
 <!-- Cancel Confirmation Modal -->
 <div id="cancel-modal" class="fixed inset-0 z-[9999] hidden">
     <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center relative">
+        <div class="rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center relative" style="background:var(--bg-white);border:1px solid var(--border)">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
                 <i class="fa-solid fa-triangle-exclamation text-red-400 text-2xl"></i>
             </div>
-            <h4 class="text-xl font-bold text-white mb-2">Cancel Booking?</h4>
-            <p class="text-gray-400 text-sm mb-6">This action cannot be undone. Your booking will be cancelled and seats will be released.</p>
+            <h4 class="text-xl font-bold mb-2" style="color:var(--text)">Cancel Booking?</h4>
+            <p style="color:var(--text-muted)" class="text-sm mb-6">This action cannot be undone. Your booking will be cancelled and seats will be released.</p>
             <div class="flex gap-3 justify-center">
                 <form id="cancel-form-action" method="POST" action="">
                     <button type="submit" class="px-5 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
                         Yes, Cancel It
                     </button>
                 </form>
-                <button type="button" id="cancel-modal-close" class="px-5 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                <button type="button" id="cancel-modal-close" class="px-5 py-2.5 text-sm font-medium rounded-lg transition-colors" style="background:var(--bg);color:var(--text-muted)">
                     No, Keep It
                 </button>
             </div>
@@ -87,13 +142,46 @@
     </div>
 </div>
 
+<!-- Review Modal -->
+<div id="review-modal" class="fixed inset-0 z-[9999] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center relative" style="background:var(--bg-white);border:1px solid var(--border)">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background:rgba(99,102,241,0.15)">
+                <i class="fa-solid fa-star text-indigo-400 text-2xl"></i>
+            </div>
+            <h4 class="text-xl font-bold mb-2" style="color:var(--text)">Rate Your Trip</h4>
+
+            <div id="star-rating" class="flex gap-2 justify-center mb-4" style="font-size:1.5rem;cursor:pointer">
+                <span class="star" data-val="1" style="color:var(--text-light)">★</span>
+                <span class="star" data-val="2" style="color:var(--text-light)">★</span>
+                <span class="star" data-val="3" style="color:var(--text-light)">★</span>
+                <span class="star" data-val="4" style="color:var(--text-light)">★</span>
+                <span class="star" data-val="5" style="color:var(--text-light)">★</span>
+            </div>
+
+            <textarea id="review-comment" rows="3" placeholder="Share your experience (optional)" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem;resize:none;margin-bottom:1rem;font-family:var(--font)"></textarea>
+
+            <div class="flex gap-3 justify-center">
+                <button type="button" id="review-submit" class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">
+                    Submit Review
+                </button>
+                <button type="button" id="review-modal-close" class="px-5 py-2.5 text-sm font-medium rounded-lg transition-colors" style="background:var(--bg);color:var(--text-muted)">
+                    Cancel
+                </button>
+            </div>
+            <p id="review-error" class="text-red-400 text-xs mt-3 hidden"></p>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // ── Cancel Modal ──
     const modal = document.getElementById('cancel-modal');
     const form = document.getElementById('cancel-form-action');
     const closeBtn = document.getElementById('cancel-modal-close');
 
-    // Open modal on "Cancel Booking" click
     document.querySelectorAll('.cancel-trigger').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -103,23 +191,109 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Close modal on "No, Keep It"
     closeBtn.addEventListener('click', function() {
         modal.classList.add('hidden');
     });
 
-    // Close on backdrop click
     modal.addEventListener('click', function(e) {
         if (e.target === modal || e.target === modal.firstElementChild) {
             modal.classList.add('hidden');
         }
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            modal.classList.add('hidden');
+        if (e.key === 'Escape') {
+            if (!modal.classList.contains('hidden')) modal.classList.add('hidden');
+            if (!reviewModal.classList.contains('hidden')) reviewModal.classList.add('hidden');
         }
+    });
+
+    // ── Review Modal ──
+    const reviewModal = document.getElementById('review-modal');
+    const reviewClose = document.getElementById('review-modal-close');
+    const reviewSubmit = document.getElementById('review-submit');
+    const reviewError = document.getElementById('review-error');
+    let selectedRating = 0;
+    let reviewType = '';
+    let reviewRefId = 0;
+
+    // Star rating interaction
+    document.querySelectorAll('#star-rating .star').forEach(function(star) {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.val);
+            document.querySelectorAll('#star-rating .star').forEach(function(s) {
+                s.style.color = parseInt(s.dataset.val) <= selectedRating ? '#fbbf24' : 'var(--text-light)';
+            });
+        });
+        star.addEventListener('mouseenter', function() {
+            var v = parseInt(this.dataset.val);
+            document.querySelectorAll('#star-rating .star').forEach(function(s) {
+                s.style.color = parseInt(s.dataset.val) <= v ? '#fbbf24' : 'var(--text-light)';
+            });
+        });
+    });
+    document.getElementById('star-rating').addEventListener('mouseleave', function() {
+        document.querySelectorAll('#star-rating .star').forEach(function(s) {
+            s.style.color = parseInt(s.dataset.val) <= selectedRating ? '#fbbf24' : 'var(--text-light)';
+        });
+    });
+
+    document.querySelectorAll('.review-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            reviewType = btn.dataset.bookingType;
+            reviewRefId = parseInt(btn.dataset.refId);
+            selectedRating = 0;
+            document.querySelectorAll('#star-rating .star').forEach(function(s) {
+                s.style.color = 'var(--text-light)';
+            });
+            document.getElementById('review-comment').value = '';
+            reviewError.classList.add('hidden');
+            reviewModal.classList.remove('hidden');
+        });
+    });
+
+    reviewClose.addEventListener('click', function() {
+        reviewModal.classList.add('hidden');
+    });
+
+    reviewSubmit.addEventListener('click', function() {
+        if (selectedRating === 0) {
+            reviewError.textContent = 'Please select a rating';
+            reviewError.classList.remove('hidden');
+            return;
+        }
+
+        fetch('/api/reviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                booking_type: reviewType,
+                ref_id: reviewRefId,
+                rating: selectedRating,
+                comment: document.getElementById('review-comment').value.trim()
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                reviewError.textContent = data.error;
+                reviewError.classList.remove('hidden');
+            } else {
+                reviewModal.classList.add('hidden');
+                // Show success feedback
+                var flash = document.createElement('div');
+                flash.className = 'flash-msg bg-emerald-950/50 text-emerald-300 border border-emerald-800/50 flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium';
+                flash.style.cssText = 'max-width:600px;margin:1rem auto';
+                flash.innerHTML = '<i class="fa-solid fa-circle-check"></i> Review submitted! Thank you for your feedback ⭐';
+                document.querySelector('main').prepend(flash);
+                setTimeout(function() { flash.remove(); }, 5000);
+            }
+        })
+        .catch(function() {
+            reviewError.textContent = 'Failed to submit review. Please try again.';
+            reviewError.classList.remove('hidden');
+        });
     });
 });
 </script>

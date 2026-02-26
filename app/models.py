@@ -307,3 +307,37 @@ class Booking(db.Model):
 
     def __repr__(self):
         return f'<Booking #{self.id} {self.booking_type} — {self.status}>'
+
+
+class Review(db.Model):
+    """User review and rating for a completed booking."""
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    booking_type = db.Column(db.String(10), nullable=False)   # flight / train / bus / hotel
+    ref_id = db.Column(db.Integer, nullable=False)            # ID of the reviewed item
+    rating = db.Column(db.Integer, nullable=False)            # 1-5
+    comment = db.Column(db.Text, default='')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = db.relationship('User', backref='reviews')
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'booking_type', 'ref_id', name='uq_user_review'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'username': self.user.username if self.user else 'Unknown',
+            'booking_type': self.booking_type,
+            'ref_id': self.ref_id,
+            'rating': self.rating,
+            'comment': self.comment,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+    def __repr__(self):
+        return f'<Review #{self.id} {self.booking_type}:{self.ref_id} ★{self.rating}>'
