@@ -53,7 +53,34 @@ def confirm(booking_id):
     booking.pnr = _generate_pnr()
     db.session.commit()
 
+    # --- Mock Email Confirmation ---
+    item_detail = _get_item_detail(booking)
+    from flask import current_app
+    email_html = f"""
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    📧 BOOKING CONFIRMATION — Py-Booking
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    To: {current_user.email}
+    Subject: Booking Confirmed — PNR {booking.pnr}
+
+    Hi {current_user.username}! 🎉
+
+    Your {booking.booking_type} booking is confirmed!
+
+    PNR:    {booking.pnr}
+    Type:   {booking.booking_type.capitalize()}
+    Label:  {item_detail.get('label', 'N/A')}
+    Route:  {item_detail.get('route', 'N/A')}
+    Price:  ₹{booking.total_price:.2f}
+    Guests: {booking.num_guests}
+
+    Thank you for booking with Py-Booking!
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    """
+    current_app.logger.info(email_html)
+
     flash('Payment successful! Booking confirmed.', 'success')
+    flash(f'Confirmation email sent to {current_user.email}', 'info')
     return render_template('payment/success.html', booking=booking)
 
 

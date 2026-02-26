@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Instant theme application to prevent flash -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('py-booking-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Py-Booking — India's Smart Travel Platform</title>
@@ -32,7 +39,7 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="bg-gray-950 text-gray-200 font-sans min-h-screen flex flex-col">
+<body class="font-sans min-h-screen flex flex-col" style="background:var(--bg);color:var(--text)">
 
     <!-- 🇮🇳 Tricolor Stripe -->
     <div class="flex h-1">
@@ -42,7 +49,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
+    <nav class="sticky top-0 z-50 backdrop-blur-sm" style="background:var(--bg-white);border-bottom:1px solid var(--border)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
@@ -74,6 +81,10 @@
 
                 <!-- Auth Links -->
                 <div class="flex items-center gap-3">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="theme-toggle" title="Toggle light/dark theme">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
                     {% if current_user.is_authenticated %}
                         <a href="{{ url_for('auth.profile') }}" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
                             <i class="fa-solid fa-user text-xs mr-1 opacity-60"></i> {{ current_user.username }}
@@ -118,7 +129,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-800 mt-16">
+    <footer class="mt-16" style="border-top:1px solid var(--border)">
         <div class="max-w-7xl mx-auto px-4 pt-12 pb-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
                 <!-- Brand -->
@@ -167,6 +178,33 @@
     <div id="global-loader" class="fixed inset-0 z-[9999] bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
         <div class="w-10 h-10 border-3 border-gray-700 border-t-brand-500 rounded-full animate-spin mb-4"></div>
         <p id="loader-text" class="text-gray-300 text-sm font-medium">Loading...</p>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div id="chatbot-toggle" class="chatbot-toggle" title="Travel Assistant">
+        <i class="fa-solid fa-robot"></i>
+    </div>
+    <div id="chatbot-panel" class="chatbot-panel hidden">
+        <div class="chatbot-header">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-robot text-orange-400"></i>
+                <span class="font-bold text-sm" style="color:var(--text)">Travel Assistant</span>
+            </div>
+            <button id="chatbot-close" class="text-sm" style="color:var(--text-muted);cursor:pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages">
+            <div class="chat-msg chat-msg--bot">
+                Hey! 👋 I'm your travel assistant. Ask me about destinations, budget tips, or booking help!
+            </div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Ask me anything..." autocomplete="off">
+            <button id="chatbot-send" title="Send">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
     </div>
 
     <!-- App JavaScript -->

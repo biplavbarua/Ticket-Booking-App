@@ -83,9 +83,50 @@ def logout():
 @auth_bp.route('/profile')
 @login_required
 def profile():
-    """Return user profile with booking history."""
+    """Return user profile with booking history and travel stats."""
     bookings = Booking.query.filter_by(user_id=current_user.id)\
         .order_by(Booking.created_at.desc()).all()
+
+    # --- Compute Travel Stats ---
+    confirmed = [b for b in bookings if b.status == 'Confirmed']
+    total_trips = len(confirmed)
+    total_spent = sum(b.total_price for b in confirmed)
+
+    # Most visited city
+    city_counts = {}
+    for b in confirmed:
+        city = None
+        if b.booking_type == 'flight':
+            item = Flight.query.get(b.ref_id)
+            if item:
+                city = item.destination
+        elif b.booking_type == 'train':
+            item = Train.query.get(b.ref_id)
+            if item:
+                city = item.destination
+        elif b.booking_type == 'bus':
+            item = Bus.query.get(b.ref_id)
+            if item:
+                city = item.destination
+        elif b.booking_type == 'hotel':
+            room = Room.query.get(b.ref_id)
+            if room:
+                city = room.hotel.city
+        if city:
+            city_counts[city] = city_counts.get(city, 0) + 1
+    top_city = max(city_counts, key=city_counts.get) if city_counts else 'N/A'
+
+    # Type breakdown
+    type_breakdown = {}
+    for b in confirmed:
+        type_breakdown[b.booking_type] = type_breakdown.get(b.booking_type, 0) + 1
+
+    stats = {
+        'total_trips': total_trips,
+        'total_spent': total_spent,
+        'top_city': top_city,
+        'type_breakdown': type_breakdown,
+    }
 
     # Enrich bookings with reference details
     enriched = []
@@ -128,7 +169,7 @@ def profile():
             'detail': detail
         })
 
-    return render_template('auth/profile.html', user=current_user, bookings=enriched)
+    return render_template('auth/profile.html', user=current_user, bookings=enriched, stats=stats)
 
 
 @auth_bp.route('/cancel/<int:booking_id>', methods=['POST'])
