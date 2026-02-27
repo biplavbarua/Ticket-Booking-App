@@ -170,23 +170,124 @@
 <div class="destinations">
     <h2 class="text-3xl font-bold mb-3 text-white">Popular <span class="text-gradient">Destinations</span></h2>
     <p class="text-gray-500 text-sm">Where India loves to travel. Pick a city, we'll handle the rest.</p>
-    <div class="destinations-grid">
-        <div class="dest-card">
-            <img src="{{ url_for('static', filename='images/delhi.png') }}"
-                alt="Delhi cityscape featuring India Gate at dusk" loading="lazy">
-            <span class="dest-tag"><i class="fa-solid fa-fire"></i> Trending</span>
-            <div class="dest-overlay">
-                <h3>Delhi</h3>
-                <p>Heritage, history & street food paradise</p>
+    <div class="destinations-slider">
+        <div class="destinations-track">
+            <!-- Set 1 -->
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/delhi.png') }}"
+                    alt="Delhi cityscape featuring India Gate at dusk" loading="lazy">
+                <span class="dest-tag"><i class="fa-solid fa-fire"></i> Trending</span>
+                <div class="dest-overlay">
+                    <h3>Delhi</h3>
+                    <p>Heritage, history & street food paradise</p>
+                </div>
             </div>
-        </div>
-        <div class="dest-card">
-            <img src="{{ url_for('static', filename='images/mumbai.png') }}"
-                alt="Mumbai skyline at sunset with Gateway of India" loading="lazy">
-            <span class="dest-tag"><i class="fa-solid fa-star"></i> Popular</span>
-            <div class="dest-overlay">
-                <h3>Mumbai</h3>
-                <p>City of dreams, Bollywood & marine drives</p>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/mumbai.png') }}"
+                    alt="Mumbai skyline at sunset with Gateway of India" loading="lazy">
+                <span class="dest-tag"><i class="fa-solid fa-star"></i> Popular</span>
+                <div class="dest-overlay">
+                    <h3>Mumbai</h3>
+                    <p>City of dreams, Bollywood & marine drives</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/goa.png') }}" alt="Sunny beach in Goa" loading="lazy">
+                <span class="dest-tag" style="background: rgba(16, 185, 129, 0.9);"><i
+                        class="fa-solid fa-umbrella-beach"></i> Top Rated</span>
+                <div class="dest-overlay">
+                    <h3>Goa</h3>
+                    <p>Sun, sand & pristine beaches</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/jaipur.png') }}" alt="Hawa Mahal at sunset"
+                    loading="lazy">
+                <span class="dest-tag" style="background: rgba(236, 72, 153, 0.9);"><i class="fa-solid fa-camera"></i>
+                    Scenic</span>
+                <div class="dest-overlay">
+                    <h3>Jaipur</h3>
+                    <p>The Pink City's royal heritage</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/bengaluru.png') }}" alt="Vidhana Soudha in Bengaluru"
+                    loading="lazy">
+                <span class="dest-tag" style="background: rgba(59, 130, 246, 0.9);"><i class="fa-solid fa-building"></i>
+                    IT Hub</span>
+                <div class="dest-overlay">
+                    <h3>Bengaluru</h3>
+                    <p>Tech capital with beautiful gardens</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/kolkata.png') }}" alt="Howrah Bridge at twilight"
+                    loading="lazy">
+                <span class="dest-tag" style="background: rgba(139, 92, 246, 0.9);"><i
+                        class="fa-solid fa-masks-theater"></i> Culture</span>
+                <div class="dest-overlay">
+                    <h3>Kolkata</h3>
+                    <p>City of joy, art & literature</p>
+                </div>
+            </div>
+
+            <!-- Set 2 (Exact duplicate for infinite scroll) -->
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/delhi.png') }}"
+                    alt="Delhi cityscape featuring India Gate at dusk" loading="lazy">
+                <span class="dest-tag"><i class="fa-solid fa-fire"></i> Trending</span>
+                <div class="dest-overlay">
+                    <h3>Delhi</h3>
+                    <p>Heritage, history & street food paradise</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/mumbai.png') }}"
+                    alt="Mumbai skyline at sunset with Gateway of India" loading="lazy">
+                <span class="dest-tag"><i class="fa-solid fa-star"></i> Popular</span>
+                <div class="dest-overlay">
+                    <h3>Mumbai</h3>
+                    <p>City of dreams, Bollywood & marine drives</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/goa.png') }}" alt="Sunny beach in Goa" loading="lazy">
+                <span class="dest-tag" style="background: rgba(16, 185, 129, 0.9);"><i
+                        class="fa-solid fa-umbrella-beach"></i> Top Rated</span>
+                <div class="dest-overlay">
+                    <h3>Goa</h3>
+                    <p>Sun, sand & pristine beaches</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/jaipur.png') }}" alt="Hawa Mahal at sunset"
+                    loading="lazy">
+                <span class="dest-tag" style="background: rgba(236, 72, 153, 0.9);"><i class="fa-solid fa-camera"></i>
+                    Scenic</span>
+                <div class="dest-overlay">
+                    <h3>Jaipur</h3>
+                    <p>The Pink City's royal heritage</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/bengaluru.png') }}" alt="Vidhana Soudha in Bengaluru"
+                    loading="lazy">
+                <span class="dest-tag" style="background: rgba(59, 130, 246, 0.9);"><i class="fa-solid fa-building"></i>
+                    IT Hub</span>
+                <div class="dest-overlay">
+                    <h3>Bengaluru</h3>
+                    <p>Tech capital with beautiful gardens</p>
+                </div>
+            </div>
+            <div class="dest-card">
+                <img src="{{ url_for('static', filename='images/kolkata.png') }}" alt="Howrah Bridge at twilight"
+                    loading="lazy">
+                <span class="dest-tag" style="background: rgba(139, 92, 246, 0.9);"><i
+                        class="fa-solid fa-masks-theater"></i> Culture</span>
+                <div class="dest-overlay">
+                    <h3>Kolkata</h3>
+                    <p>City of joy, art & literature</p>
+                </div>
             </div>
         </div>
     </div>

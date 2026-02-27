@@ -834,11 +834,36 @@ select.input {
   text-align: center;
 }
 
-.destinations-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 28px;
+.destinations-slider {
   margin-top: 40px;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  /* Add subtle fade effect on edges */
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.destinations-track {
+  display: inline-flex;
+  gap: 28px;
+  animation: scrollCustom 40s linear infinite;
+  /* Pause animation on hover */
+}
+
+.destinations-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollCustom {
+  0% {
+    transform: translateX(0);
+  }
+
+  /* -50% shifts exactly half the track length minus half the gap */
+  100% {
+    transform: translateX(calc(-50% - 14px));
+  }
 }
 
 .dest-card {
@@ -846,6 +871,8 @@ select.input {
   border-radius: var(--radius-lg);
   overflow: hidden;
   aspect-ratio: 16 / 10;
+  width: 320px;
+  flex: 0 0 auto;
   cursor: pointer;
   box-shadow: var(--shadow-lg);
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1996,10 +2023,6 @@ select.input {
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 24px;
-  }
-
-  .destinations-grid {
-    grid-template-columns: 1fr;
   }
 
   .nav-links {
