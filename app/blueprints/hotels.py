@@ -4,7 +4,7 @@ import time
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
-from datetime import datetime
+from datetime import datetime, date
 from app.extensions import db
 from app.models import Hotel, Room, Booking
 
@@ -36,6 +36,11 @@ def search():
             query = query.filter(Hotel.star_rating >= int(star_filter))
         except ValueError:
             pass
+
+    # Only show hotels that have at least one room available
+    query = query.filter(
+        Hotel.rooms.any(Room.rooms_available > 0)
+    )
 
     hotels = query.order_by(Hotel.star_rating.desc()).all()
 
@@ -94,10 +99,26 @@ def book(hotel_id):
         flash('Check-out must be after check-in.', 'error')
         return redirect(url_for('hotels.detail', hotel_id=hotel.id))
 
+    # Validate check-in is not in the past
+    if check_in_date < date.today():
+        flash('Check-in date cannot be in the past.', 'error')
+        return redirect(url_for('hotels.detail', hotel_id=hotel.id))
+
     nights = (check_out_date - check_in_date).days
     total_price = room.price_per_night * nights
     import json
-    
+
+    # Atomic room availability decrement to prevent race conditions
+    result = db.session.execute(
+        db.update(Room)
+        .where(Room.id == room.id, Room.rooms_available >= 1)
+        .values(rooms_available=Room.rooms_available - 1)
+    )
+    if result.rowcount == 0:
+        db.session.rollback()
+        flash('This room type is fully booked.', 'error')
+        return redirect(url_for('hotels.detail', hotel_id=hotel.id))
+
     booking = Booking(
         user_id=current_user.id,
         booking_type='hotel',
@@ -109,8 +130,6 @@ def book(hotel_id):
         total_price=total_price,
         status='Pending',
     )
-
-    room.rooms_available -= 1
     db.session.add(booking)
     db.session.commit()
 

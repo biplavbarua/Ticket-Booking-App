@@ -64,6 +64,12 @@ def login():
             login_user(user)
             flash('Logged in successfully.', 'success')
             next_page = request.args.get('next')
+            # Prevent open redirect — only allow relative URLs
+            if next_page:
+                from urllib.parse import urlparse
+                parsed = urlparse(next_page)
+                if parsed.netloc or parsed.scheme:
+                    next_page = None
             return redirect(next_page or url_for('main.index'))
 
         flash('Invalid email or password.', 'error')

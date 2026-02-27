@@ -1,9 +1,9 @@
-"""Seed the database with 30 days of flights, trains, buses, hotels, and rooms."""
+"""Seed the database with 30 days of flights, trains, buses, hotels, and rooms + seat maps."""
 import json, random
 from datetime import datetime, timedelta
 from app import create_app
 from app.extensions import db
-from app.models import Flight, Train, Bus, Hotel, Room
+from app.models import Flight, Train, Bus, Hotel, Room, Seat
 
 app = create_app()
 
@@ -96,10 +96,90 @@ HOTELS_DATA = [
 ]
 
 
+# ── Seat Generation Helpers ──────────────────────────────────────────
+
+def generate_flight_seats(flight_id, num_seats):
+    """Generate 3+3 layout seats (A-F across, 10 rows)."""
+    seats = []
+    cols = ['A', 'B', 'C', 'D', 'E', 'F']
+    num_rows = max(num_seats // 6, 4)  # At least 4 rows
+    total_generated = 0
+
+    for row in range(1, num_rows + 1):
+        for col_idx, col_letter in enumerate(cols):
+            if total_generated >= num_seats:
+                break
+            seats.append(Seat(
+                vehicle_type='flight',
+                vehicle_id=flight_id,
+                seat_label=f'{row}{col_letter}',
+                row=row,
+                col=col_idx,
+                seat_class='economy',
+                is_booked=random.random() < 0.25,  # 25% pre-booked
+            ))
+            total_generated += 1
+    return seats
+
+
+def generate_bus_seats(bus_id, num_seats):
+    """Generate 2+2 layout seats (A-D across, ~10 rows)."""
+    seats = []
+    cols = ['A', 'B', 'C', 'D']
+    num_rows = max(num_seats // 4, 5)
+    total_generated = 0
+
+    for row in range(1, num_rows + 1):
+        for col_idx, col_letter in enumerate(cols):
+            if total_generated >= num_seats:
+                break
+            seats.append(Seat(
+                vehicle_type='bus',
+                vehicle_id=bus_id,
+                seat_label=f'{row}{col_letter}',
+                row=row,
+                col=col_idx,
+                seat_class='standard',
+                is_booked=random.random() < 0.3,  # 30% pre-booked
+            ))
+            total_generated += 1
+    return seats
+
+
+def generate_train_seats(train_id, num_seats):
+    """Generate 8-berth compartment layout.
+    Each compartment (row) has 8 berths:
+      cols 0-2: Side A (LB, MB, UB)
+      cols 3-5: Side B (LB, MB, UB)
+      cols 6-7: Side berths (SL, SU)
+    """
+    seats = []
+    berth_labels = ['LB', 'MB', 'UB', 'LB', 'MB', 'UB', 'SL', 'SU']
+    num_compartments = max(num_seats // 8, 5)
+    total_generated = 0
+
+    for comp in range(1, num_compartments + 1):
+        for col_idx, label in enumerate(berth_labels):
+            if total_generated >= num_seats:
+                break
+            seats.append(Seat(
+                vehicle_type='train',
+                vehicle_id=train_id,
+                seat_label=f'{label}-{comp}',
+                row=comp,
+                col=col_idx,
+                seat_class='sleeper',
+                is_booked=random.random() < 0.2,  # 20% pre-booked
+            ))
+            total_generated += 1
+    return seats
+
+
 def seed():
     with app.app_context():
         # Drop all existing data for a clean reseed
         print('🗑️  Clearing existing data...')
+        Seat.query.delete()
         Room.query.delete()
         Hotel.query.delete()
         Bus.query.delete()
@@ -109,7 +189,7 @@ def seed():
 
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         days_to_seed = 30
-        flight_count = train_count = bus_count = 0
+        flight_count = train_count = bus_count = seat_count = 0
 
         # ── Flights (every route, every day for 30 days) ──
         for day_offset in range(days_to_seed):
@@ -118,12 +198,19 @@ def seed():
                 # Add small daily price variation (±10%)
                 price = int(price_base * random.uniform(0.9, 1.1))
                 seats = random.randint(20, 60)
-                db.session.add(Flight(
+                flight = Flight(
                     flight_number=fn, airline=airline, origin=orig, destination=dest,
                     departure=base + timedelta(hours=dep_h),
                     arrival=base + timedelta(hours=dep_h + dur_h, minutes=dur_m),
                     price=price, seats_available=seats,
-                ))
+                )
+                db.session.add(flight)
+                db.session.flush()
+
+                # Generate seat map
+                flight_seats = generate_flight_seats(flight.id, seats)
+                db.session.add_all(flight_seats)
+                seat_count += len(flight_seats)
                 flight_count += 1
 
         # ── Trains (every route, every day for 30 days) ──
@@ -131,12 +218,18 @@ def seed():
             base = today + timedelta(days=day_offset)
             for tn, name, orig, dest, dep_h, dep_m, dur_h, classes in TRAIN_ROUTES:
                 seats = random.randint(80, 200)
-                db.session.add(Train(
+                train = Train(
                     train_number=tn, name=name, origin=orig, destination=dest,
                     departure=base + timedelta(hours=dep_h, minutes=dep_m),
                     arrival=base + timedelta(hours=dep_h + dur_h, minutes=dep_m),
                     classes=json.dumps(classes), seats_available=seats,
-                ))
+                )
+                db.session.add(train)
+                db.session.flush()
+
+                train_seats = generate_train_seats(train.id, seats)
+                db.session.add_all(train_seats)
+                seat_count += len(train_seats)
                 train_count += 1
 
         # ── Buses (every route, every day for 30 days) ──
@@ -145,12 +238,18 @@ def seed():
             for operator, orig, dest, dep_h, dur_h, bus_type, price_base in BUS_ROUTES:
                 price = int(price_base * random.uniform(0.9, 1.1))
                 seats = random.randint(20, 45)
-                db.session.add(Bus(
+                bus = Bus(
                     operator=operator, origin=orig, destination=dest,
                     departure=base + timedelta(hours=dep_h),
                     arrival=base + timedelta(hours=dep_h + dur_h),
                     bus_type=bus_type, price=price, seats_available=seats,
-                ))
+                )
+                db.session.add(bus)
+                db.session.flush()
+
+                bus_seats = generate_bus_seats(bus.id, seats)
+                db.session.add_all(bus_seats)
+                seat_count += len(bus_seats)
                 bus_count += 1
 
         # ── Hotels & Rooms (static, not date-dependent) ──
@@ -173,6 +272,7 @@ def seed():
         print(f'   → {train_count} trains ({len(TRAIN_ROUTES)} routes × {days_to_seed} days)')
         print(f'   → {bus_count} buses ({len(BUS_ROUTES)} routes × {days_to_seed} days)')
         print(f'   → {hotel_count} hotels with rooms')
+        print(f'   → {seat_count} individual seat records')
 
 
 if __name__ == '__main__':

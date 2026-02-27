@@ -3,10 +3,25 @@
 {% block content %}
 <div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2 space-y-6">
+
+        <!-- ═══ Seat Selection ═══ -->
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fa-solid fa-chair mr-2 text-indigo-400"></i>Select Your Seats
+        </h2>
+
+        <div class="glass p-6 rounded-xl">
+            <div class="seat-selection-info">
+                Select <span class="seat-count" id="seatCounter">0</span> / <span id="seatMax">1</span> seat(s)
+            </div>
+            <div id="seatMapContainer"></div>
+        </div>
+
+        <!-- ═══ Passenger Details ═══ -->
         <h2 class="text-2xl font-bold text-white mb-4">Passenger Details</h2>
-        
+
         <div class="glass p-6 rounded-xl">
             <form id="bookingForm" method="POST" action="{{ url_for('buses.book', bus_id=bus.id) }}">
+                {{ csrf_token() }}
 
                 <div id="passengerContainer" class="space-y-6">
                     <!-- Passenger 1 -->
@@ -17,20 +32,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
-                                <input type="text" name="passenger_names[]" required class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
+                                <input type="text" name="passenger_names[]" required
+                                    class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 border-b border-gray-700 pb-6">
-                    <button type="button" onclick="addPassenger()" class="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center">
+                    <button type="button" onclick="addPassenger()"
+                        class="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center">
                         <i class="fa-solid fa-plus mr-1"></i> Add Another Passenger
                     </button>
                 </div>
-                
+
                 <div class="mt-6 flex justify-end">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all">
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all">
                         Proceed to Payment <i class="fa-solid fa-arrow-right ml-2"></i>
                     </button>
                 </div>
@@ -42,18 +60,21 @@
     <div class="lg:col-span-1">
         <div class="glass p-6 rounded-xl sticky top-24">
             <h3 class="text-xl font-bold text-white mb-4">Booking Summary</h3>
-            
+
             <div class="border-b border-gray-700 pb-4 mb-4">
-                <p class="text-sm text-indigo-300 font-bold mb-1">{{ bus.operator }} <span class="text-gray-400 font-normal ml-2 border border-gray-600 rounded px-1 text-xs">{{ bus.bus_type }}</span></p>
+                <p class="text-sm text-indigo-300 font-bold mb-1">{{ bus.operator }} <span
+                        class="text-gray-400 font-normal ml-2 border border-gray-600 rounded px-1 text-xs">{{
+                        bus.bus_type }}</span></p>
                 <div class="flex justify-between items-center text-white mt-3">
                     <div class="font-mono text-xl">{{ bus.origin }}</div>
                     <i class="fa-solid fa-arrow-right text-gray-500"></i>
                     <div class="font-mono text-xl">{{ bus.destination }}</div>
                 </div>
-                <p class="text-sm text-gray-400 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i> {{ bus.departure.strftime('%b %d, %Y - %H:%M') }}</p>
+                <p class="text-sm text-gray-400 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i> {{
+                    bus.departure.strftime('%b %d, %Y - %H:%M') }}</p>
             </div>
-            
-            <div class="space-y-2 mb-6">
+
+            <div class="space-y-2 mb-4">
                 <div class="flex justify-between text-gray-300">
                     <span>Price per Ticket</span>
                     <span>₹{{ "%.2f"|format(bus.price) }}</span>
@@ -63,21 +84,60 @@
                     <span id="passengerCountSummary">1</span>
                 </div>
             </div>
-            
+
+            <!-- Selected Seats Display -->
+            <div class="border-t border-gray-700 pt-4 mb-4" id="selectedSeatsSection" style="display:none;">
+                <p class="text-sm text-gray-400 mb-2">Selected Seats</p>
+                <div id="selectedSeatsList" class="flex flex-wrap gap-2"></div>
+            </div>
+
             <div class="pt-4 border-t border-gray-700">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-300">Total Amount</span>
-                    <span class="text-2xl font-bold text-indigo-400" id="totalPriceSummary">₹{{ "%.2f"|format(bus.price) }}</span>
+                    <span class="text-2xl font-bold text-indigo-400" id="totalPriceSummary">₹{{ "%.2f"|format(bus.price)
+                        }}</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/seat_map.js') }}"></script>
 <script>
     const basePrice = parseFloat("{{ bus.price }}");
     let passengerCount = 1;
     const maxPassengers = Math.min(parseInt("{{ bus.seats_available }}"), 6);
+
+    // Initialize seat map
+    SeatMap.init({
+        vehicleType: 'bus',
+        vehicleId: {{ bus.id }},
+        containerId: 'seatMapContainer',
+        maxSeats: passengerCount,
+        onSelectionChange: updateSeatDisplay
+    });
+
+    document.getElementById('seatMax').textContent = passengerCount;
+
+    function updateSeatDisplay(selectedSeats) {
+        document.getElementById('seatCounter').textContent = selectedSeats.length;
+        const section = document.getElementById('selectedSeatsSection');
+        const list = document.getElementById('selectedSeatsList');
+        list.innerHTML = '';
+        if (selectedSeats.length > 0) {
+            section.style.display = 'block';
+            selectedSeats.forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = 'inline-flex items-center px-2 py-1 rounded-md text-xs font-bold';
+                badge.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+                badge.style.color = '#fff';
+                badge.textContent = s.seat_label;
+                list.appendChild(badge);
+            });
+        } else {
+            section.style.display = 'none';
+        }
+    }
 
     function addPassenger() {
         if (passengerCount >= maxPassengers) {
@@ -85,7 +145,7 @@
             return;
         }
         passengerCount++;
-        
+
         const container = document.getElementById('passengerContainer');
         const newPassenger = document.createElement('div');
         newPassenger.className = 'passenger-item border border-gray-700 rounded-lg p-4 bg-white/5 relative mt-4';
@@ -103,29 +163,37 @@
         `;
         container.appendChild(newPassenger);
         updateSummary();
+        updateMaxSeats();
     }
 
     function removePassenger(button) {
         button.closest('.passenger-item').remove();
         passengerCount--;
-        
-        // Re-number remaining passengers
         const items = document.querySelectorAll('.passenger-item h4');
         items.forEach((item, index) => {
             item.textContent = `Passenger ${index + 1}`;
         });
-        
         updateSummary();
+        updateMaxSeats();
     }
 
     function updateSummary() {
         const total = (basePrice * passengerCount).toFixed(2);
-        
         document.getElementById('passengerCountSummary').textContent = passengerCount;
         document.getElementById('totalPriceSummary').textContent = '₹' + total;
     }
 
-    // Initialize summary on page load
+    function updateMaxSeats() {
+        document.getElementById('seatMax').textContent = passengerCount;
+        SeatMap.init({
+            vehicleType: 'bus',
+            vehicleId: {{ bus.id }},
+    containerId: 'seatMapContainer',
+        maxSeats: passengerCount,
+            onSelectionChange: updateSeatDisplay
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', updateSummary);
 </script>
 {% endblock %}

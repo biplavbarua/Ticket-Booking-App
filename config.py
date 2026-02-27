@@ -6,7 +6,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """Base configuration shared across all environments."""
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY', os.urandom(32).hex())
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # Default to SQLite for development; override with DATABASE_URL env var for PostgreSQL
     SQLALCHEMY_DATABASE_URI = os.environ.get(
@@ -23,7 +23,11 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production-specific settings — requires DATABASE_URL env var."""
     DEBUG = False
-    SECRET_KEY = os.environ.get('SECRET_KEY')  # Must be set in production
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    
+    def __init__(self):
+        if not self.SECRET_KEY:
+            raise ValueError('SECRET_KEY environment variable must be set in production!')
 
 
 config_by_name = {

@@ -124,9 +124,18 @@ def fare_calendar():
     if not Model:
         return jsonify({'error': 'type must be flight, train, or bus'}), 400
 
+    # Flights use IATA codes; trains/buses store full station/city names
+    if btype == 'flight':
+        origin_filter = func.upper(Model.origin) == origin
+        dest_filter = func.upper(Model.destination) == destination
+    else:
+        # Fuzzy match on city name for trains and buses
+        origin_filter = func.lower(Model.origin).contains(origin_raw.lower())
+        dest_filter = func.lower(Model.destination).contains(dest_raw.lower())
+
     results = Model.query.filter(
-        func.upper(Model.origin) == origin,
-        func.upper(Model.destination) == destination,
+        origin_filter,
+        dest_filter,
         func.date(Model.departure) >= month_start,
         func.date(Model.departure) <= month_end,
     ).all()

@@ -26,10 +26,12 @@
 | ✈️ **Flights**  | Search by city name (auto-resolves to IATA codes), browse results, book seats |
 | 🚂 **Trains**   | Case-insensitive station search, class-wise pricing (SL/3A/2A/1A), PNR status |
 | 🚌 **Buses**    | Filter by type (Sleeper/Semi-Sleeper/Seater), operator-wise results           |
+| 💺 **Seat Map** | Interactive 2.5D visual seat selection (cockpit vs. driver cabin vs. train berths) |
 | 🏨 **Hotels**   | City search, room type selection, date-based availability                     |
 | 🔐 **Auth**     | Signup, Login, Logout with hashed passwords (PBKDF2-SHA256)                   |
 | 👤 **Profile**  | View booking history, cancel bookings with confirmation modal                 |
 | 💳 **Payments** | Mock payment gateway with booking confirmation & PNR generation               |
+| 🎫 **Tickets**  | Printable boarding-pass style tickets with dynamic QR Code verification       |
 
 ## 🏗️ Tech Stack
 
@@ -118,6 +120,8 @@ erDiagram
 The UI features a premium dark theme with a modern, professional aesthetic. Highlights include:
 
 - **Tricolor stripe** & Ashoka Chakra–inspired logo for an Indian identity
+- **Interactive Seat Maps** — visual 2.5D seat selection for flights, trains, and buses
+- **Printable Tickets** — beautiful boarding-pass layout with QR code verification
 - **Witty feature cards** — _"Faster than Tatkal"_, _"Fort Knox Security"_, _"Zero Downtime"_, _"No CAPTCHA Nightmares"_
 - **Custom cancel modal** — a polished confirmation dialog for booking cancellations
 - Built with **Tailwind CSS** (CDN) and **custom CSS variables**

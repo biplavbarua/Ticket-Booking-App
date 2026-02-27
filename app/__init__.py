@@ -19,7 +19,9 @@ def create_app(config_name=None):
 
     # Enable CORS for the React frontend (running on Vite's default port 5173)
     from flask_cors import CORS
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+    CORS(app, supports_credentials=True, resources={r"/api/*": {
+        "origins": ["http://localhost:5001", "http://localhost:5173", "http://127.0.0.1:5001"]
+    }})
 
     # --- Initialize extensions ---
     db.init_app(app)
@@ -43,6 +45,8 @@ def create_app(config_name=None):
     from app.blueprints.payment import payment_bp
     from app.blueprints.api import api_bp
     from app.blueprints.chatbot import chatbot_bp
+    from app.blueprints.seat_api import seat_api_bp
+    from app.blueprints.ticket import ticket_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -53,6 +57,37 @@ def create_app(config_name=None):
     app.register_blueprint(payment_bp, url_prefix='/payment')
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(chatbot_bp, url_prefix='/api/chat')
+    app.register_blueprint(seat_api_bp)
+    app.register_blueprint(ticket_bp)
+
+    # --- CSRF Protection ---
+    import secrets
+    from flask import session, request as req, abort
+    from markupsafe import Markup
+
+    CSRF_EXEMPT_ENDPOINTS = {'chatbot.chat', 'api.create_review', 'api.get_reviews'}
+
+    @app.before_request
+    def _csrf_protect():
+        if req.method == 'POST':
+            if req.endpoint in CSRF_EXEMPT_ENDPOINTS:
+                return  # JSON APIs exempt
+            token = session.get('_csrf_token')
+            form_token = req.form.get('_csrf_token')
+            if not token or token != form_token:
+                abort(403)
+
+    def _generate_csrf_token():
+        if '_csrf_token' not in session:
+            session['_csrf_token'] = secrets.token_hex(32)
+        return session['_csrf_token']
+
+    @app.context_processor
+    def _inject_csrf():
+        def csrf_token():
+            token = _generate_csrf_token()
+            return Markup(f'<input type="hidden" name="_csrf_token" value="{token}">')
+        return dict(csrf_token=csrf_token)
 
     # --- Create tables if they don't exist (dev convenience) ---
     with app.app_context():

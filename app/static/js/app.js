@@ -25,6 +25,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ── Mobile Menu Toggle ──
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileNav = document.getElementById("mobile-nav");
+
+  if (mobileMenuBtn && mobileNav) {
+    mobileMenuBtn.addEventListener("click", () => {
+      const isOpen = !mobileNav.classList.contains("hidden");
+      mobileNav.classList.toggle("hidden");
+      mobileMenuBtn.innerHTML = isOpen
+        ? '<i class="fa-solid fa-bars"></i>'
+        : '<i class="fa-solid fa-xmark"></i>';
+    });
+  }
+
   // ── Tab Switching ──
   const tabs = document.querySelectorAll(".tab");
   const tabContents = document.querySelectorAll(".tab-content");
@@ -35,13 +49,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Deactivate all
       tabs.forEach((t) => t.classList.remove("active"));
-      tabContents.forEach((tc) => tc.classList.remove("active"));
+      tabContents.forEach((tc) => {
+        tc.classList.remove("active");
+        // Remove 'required' from inputs in inactive tabs
+        tc.querySelectorAll("input[name]").forEach((inp) => inp.removeAttribute("required"));
+      });
 
       // Activate clicked
       tab.classList.add("active");
       const form = document.getElementById(`form-${target}`);
       if (form) {
         form.classList.add("active");
+        // Restore 'required' on text/city inputs in the active form
+        form.querySelectorAll("input[type='text'][name]").forEach((inp) => inp.setAttribute("required", ""));
         // Focus the first input in the active form
         const firstInput = form.querySelector("input");
         if (firstInput) firstInput.focus();
@@ -60,13 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const dropdown = document.createElement("div");
     dropdown.className = "autocomplete-dropdown";
-    dropdown.style.cssText = `
-      position:absolute; top:100%; left:0; right:0; z-index:999;
-      background:#1e293b; border:1px solid rgba(255,255,255,0.15);
-      border-radius:8px; max-height:240px; overflow-y:auto;
-      display:none; box-shadow:0 8px 32px rgba(0,0,0,0.4);
-      margin-top:4px;
-    `;
     wrapper.appendChild(dropdown);
 
     input.addEventListener("input", () => {
@@ -88,17 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
             dropdown.innerHTML = cities
               .map(
                 (c) => `
-              <div class="ac-item" style="
-                padding:10px 16px; cursor:pointer; display:flex;
-                justify-content:space-between; align-items:center;
-                border-bottom:1px solid rgba(255,255,255,0.06);
-                transition:background 0.15s;
-              " data-city="${c.city}" data-code="${c.code}">
-                <span style="color:#e2e8f0;font-weight:500">${c.city}</span>
-                <span style="color:#818cf8;font-size:0.8rem;font-weight:600;
-                  background:rgba(99,102,241,0.15);padding:2px 8px;border-radius:4px">
-                  ${c.code}
-                </span>
+              <div class="ac-item" data-city="${c.city}" data-code="${c.code}">
+                <span class="ac-item-city">${c.city}</span>
+                <span class="ac-item-code">${c.code}</span>
               </div>`,
               )
               .join("");
@@ -110,12 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 e.preventDefault();
                 input.value = item.dataset.city;
                 dropdown.style.display = "none";
-              });
-              item.addEventListener("mouseenter", () => {
-                item.style.background = "rgba(255,255,255,0.08)";
-              });
-              item.addEventListener("mouseleave", () => {
-                item.style.background = "transparent";
               });
             });
           })

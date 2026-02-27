@@ -3,17 +3,34 @@
 {% block content %}
 <div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2 space-y-6">
+
+        <!-- ═══ Seat Selection ═══ -->
+        <h2 class="text-2xl font-bold text-white mb-4">
+            <i class="fa-solid fa-chair mr-2 text-indigo-400"></i>Select Your Berths
+        </h2>
+
+        <div class="glass p-6 rounded-xl">
+            <div class="seat-selection-info">
+                Select <span class="seat-count" id="seatCounter">0</span> / <span id="seatMax">1</span> berth(s)
+            </div>
+            <div id="seatMapContainer"></div>
+        </div>
+
+        <!-- ═══ Passenger Details ═══ -->
         <h2 class="text-2xl font-bold text-white mb-4">Passenger Details</h2>
-        
+
         <div class="glass p-6 rounded-xl">
             <form id="bookingForm" method="POST" action="{{ url_for('trains.book', train_id=train.id) }}">
+                {{ csrf_token() }}
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-300 mb-2">Select Travel Class</label>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {% for cls, price in train.get_classes().items() %}
                         <label class="cursor-pointer">
-                            <input type="radio" name="travel_class" value="{{ cls }}" class="peer sr-only" {% if loop.first %}checked{% endif %} onchange="updateSummary()">
-                            <div class="p-3 border border-gray-600 rounded-lg text-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500/20 hover:bg-white/5 transition-all">
+                            <input type="radio" name="travel_class" value="{{ cls }}" class="peer sr-only" {% if
+                                loop.first %}checked{% endif %} onchange="updateSummary()">
+                            <div
+                                class="p-3 border border-gray-600 rounded-lg text-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500/20 hover:bg-white/5 transition-all">
                                 <div class="font-bold text-white mb-1">{{ cls }}</div>
                                 <div class="text-sm text-indigo-300">₹{{ "%.2f"|format(price) }}</div>
                             </div>
@@ -31,20 +48,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
-                                <input type="text" name="passenger_names[]" required class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
+                                <input type="text" name="passenger_names[]" required
+                                    class="w-full px-3 py-2 bg-black/30 border border-gray-600 rounded text-white focus:outline-none focus:border-indigo-500">
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 border-b border-gray-700 pb-6">
-                    <button type="button" onclick="addPassenger()" class="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center">
+                    <button type="button" onclick="addPassenger()"
+                        class="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center">
                         <i class="fa-solid fa-plus mr-1"></i> Add Another Passenger
                     </button>
                 </div>
-                
+
                 <div class="mt-6 flex justify-end">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all">
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all">
                         Proceed to Payment <i class="fa-solid fa-arrow-right ml-2"></i>
                     </button>
                 </div>
@@ -56,18 +76,20 @@
     <div class="lg:col-span-1">
         <div class="glass p-6 rounded-xl sticky top-24">
             <h3 class="text-xl font-bold text-white mb-4">Booking Summary</h3>
-            
+
             <div class="border-b border-gray-700 pb-4 mb-4">
-                <p class="text-sm text-indigo-300 font-bold mb-1">{{ train.name }} <span class="text-gray-400 font-normal">#{{ train.train_number }}</span></p>
+                <p class="text-sm text-indigo-300 font-bold mb-1">{{ train.name }} <span
+                        class="text-gray-400 font-normal">#{{ train.train_number }}</span></p>
                 <div class="flex justify-between items-center text-white">
                     <div class="font-mono text-xl">{{ train.origin }}</div>
                     <i class="fa-solid fa-train text-gray-500"></i>
                     <div class="font-mono text-xl">{{ train.destination }}</div>
                 </div>
-                <p class="text-sm text-gray-400 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i> {{ train.departure.strftime('%b %d, %Y') }}</p>
+                <p class="text-sm text-gray-400 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i> {{
+                    train.departure.strftime('%b %d, %Y') }}</p>
             </div>
-            
-            <div class="space-y-2 mb-6">
+
+            <div class="space-y-2 mb-4">
                 <div class="flex justify-between text-gray-300">
                     <span>Class Selected</span>
                     <span id="classSelectedSummary" class="font-bold"></span>
@@ -81,7 +103,13 @@
                     <span id="passengerCountSummary">1</span>
                 </div>
             </div>
-            
+
+            <!-- Selected Seats Display -->
+            <div class="border-t border-gray-700 pt-4 mb-4" id="selectedSeatsSection" style="display:none;">
+                <p class="text-sm text-gray-400 mb-2">Selected Berths</p>
+                <div id="selectedSeatsList" class="flex flex-wrap gap-2"></div>
+            </div>
+
             <div class="pt-4 border-t border-gray-700">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-300">Total Amount</span>
@@ -92,10 +120,42 @@
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/seat_map.js') }}"></script>
 <script>
     const classPrices = {{ train.get_classes() | tojson | safe }};
     let passengerCount = 1;
     const maxPassengers = Math.min({{ train.seats_available }}, 6);
+
+    // Initialize seat map
+    SeatMap.init({
+        vehicleType: 'train',
+        vehicleId: {{ train.id }},
+        containerId: 'seatMapContainer',
+        maxSeats: passengerCount,
+        onSelectionChange: updateSeatDisplay
+    });
+
+    document.getElementById('seatMax').textContent = passengerCount;
+
+    function updateSeatDisplay(selectedSeats) {
+        document.getElementById('seatCounter').textContent = selectedSeats.length;
+        const section = document.getElementById('selectedSeatsSection');
+        const list = document.getElementById('selectedSeatsList');
+        list.innerHTML = '';
+        if (selectedSeats.length > 0) {
+            section.style.display = 'block';
+            selectedSeats.forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = 'inline-flex items-center px-2 py-1 rounded-md text-xs font-bold';
+                badge.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+                badge.style.color = '#fff';
+                badge.textContent = s.seat_label;
+                list.appendChild(badge);
+            });
+        } else {
+            section.style.display = 'none';
+        }
+    }
 
     function addPassenger() {
         if (passengerCount >= maxPassengers) {
@@ -103,7 +163,7 @@
             return;
         }
         passengerCount++;
-        
+
         const container = document.getElementById('passengerContainer');
         const newPassenger = document.createElement('div');
         newPassenger.className = 'passenger-item border border-gray-700 rounded-lg p-4 bg-white/5 relative mt-4';
@@ -121,37 +181,45 @@
         `;
         container.appendChild(newPassenger);
         updateSummary();
+        updateMaxSeats();
     }
 
     function removePassenger(button) {
         button.closest('.passenger-item').remove();
         passengerCount--;
-        
-        // Re-number remaining passengers
         const items = document.querySelectorAll('.passenger-item h4');
         items.forEach((item, index) => {
             item.textContent = `Passenger ${index + 1}`;
         });
-        
         updateSummary();
+        updateMaxSeats();
     }
 
     function updateSummary() {
-        // Find selected class
         const selectedRadio = document.querySelector('input[name="travel_class"]:checked');
         if (!selectedRadio) return;
-        
+
         const selectedClass = selectedRadio.value;
         const pricePer = classPrices[selectedClass] || 0;
         const total = (pricePer * passengerCount).toFixed(2);
-        
+
         document.getElementById('classSelectedSummary').textContent = selectedClass;
         document.getElementById('pricePerTicketSummary').textContent = '₹' + pricePer.toFixed(2);
         document.getElementById('passengerCountSummary').textContent = passengerCount;
         document.getElementById('totalPriceSummary').textContent = '₹' + total;
     }
 
-    // Initialize summary on page load
+    function updateMaxSeats() {
+        document.getElementById('seatMax').textContent = passengerCount;
+        SeatMap.init({
+            vehicleType: 'train',
+            vehicleId: {{ train.id }},
+    containerId: 'seatMapContainer',
+        maxSeats: passengerCount,
+            onSelectionChange: updateSeatDisplay
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', updateSummary);
 </script>
 {% endblock %}

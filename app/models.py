@@ -261,6 +261,42 @@ class Room(db.Model):
 
 
 # ---------------------------------------------------------------------------
+# Seat Map
+# ---------------------------------------------------------------------------
+
+class Seat(db.Model):
+    """Individual seat within a flight, bus, or train."""
+    __tablename__ = 'seats'
+
+    id = db.Column(db.Integer, primary_key=True)
+    vehicle_type = db.Column(db.String(10), nullable=False, index=True)  # flight / bus / train
+    vehicle_id = db.Column(db.Integer, nullable=False, index=True)
+    seat_label = db.Column(db.String(10), nullable=False)  # e.g. '1A', '5D', 'LB-3'
+    row = db.Column(db.Integer, nullable=False)
+    col = db.Column(db.Integer, nullable=False)
+    seat_class = db.Column(db.String(20), default='economy')
+    is_booked = db.Column(db.Boolean, default=False)
+    booking_id = db.Column(db.Integer, db.ForeignKey('bookings.id'), nullable=True)
+
+    __table_args__ = (
+        db.Index('ix_seat_vehicle', 'vehicle_type', 'vehicle_id'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'seat_label': self.seat_label,
+            'row': self.row,
+            'col': self.col,
+            'seat_class': self.seat_class,
+            'is_booked': self.is_booked,
+        }
+
+    def __repr__(self):
+        return f'<Seat {self.seat_label} {self.vehicle_type}:{self.vehicle_id}>'
+
+
+# ---------------------------------------------------------------------------
 # Unified Booking Ledger
 # ---------------------------------------------------------------------------
 
@@ -280,7 +316,16 @@ class Booking(db.Model):
     status = db.Column(db.String(20), default='Pending')      # Pending / Confirmed / Cancelled
     total_price = db.Column(db.Float, nullable=False)
     pnr = db.Column(db.String(10), unique=True, index=True)   # Generated on confirmation
+    seat_numbers = db.Column(db.Text)                        # JSON list of assigned seat labels
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    seats = db.relationship('Seat', backref='booking', lazy=True)
+
+    def get_seat_labels(self):
+        try:
+            return json.loads(self.seat_numbers) if self.seat_numbers else []
+        except (json.JSONDecodeError, TypeError):
+            return []
 
     def get_passengers(self):
         try:

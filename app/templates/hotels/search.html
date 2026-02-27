@@ -1,45 +1,52 @@
 {% extends 'base.html' %}
+{% block title %}Search Hotels — Py-Booking{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto mt-10">
     <div class="glass p-8 rounded-xl relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none">
+        </div>
 
-        <h2 class="text-3xl font-bold mb-6 text-white"><i class="fa-solid fa-hotel mr-3 text-pink-400"></i>Search Hotels</h2>
-        
-        <form method="GET" action="{{ url_for('hotels.search') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+        <h2 class="text-3xl font-bold mb-6 text-white"><i class="fa-solid fa-hotel mr-3 text-pink-400"></i>Search Hotels
+        </h2>
+
+        <form method="GET" action="{{ url_for('hotels.search') }}"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
             <div class="lg:col-span-2">
                 <label for="city" class="block text-sm font-medium text-gray-300">City</label>
                 <input type="text" id="city" name="city" required placeholder="e.g. Mumbai"
-                       class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                    class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
             </div>
-            
+
             <div>
                 <label for="check_in" class="block text-sm font-medium text-gray-300">Check-in Date</label>
-                <input type="date" id="check_in" name="check_in" 
-                       class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                <input type="date" id="check_in" name="check_in"
+                    class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
             </div>
-            
+
             <div>
                 <label for="check_out" class="block text-sm font-medium text-gray-300">Check-out Date</label>
-                <input type="date" id="check_out" name="check_out" 
-                       class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                <input type="date" id="check_out" name="check_out"
+                    class="mt-1 block w-full px-4 py-3 bg-white/5 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
             </div>
 
             <div class="lg:col-span-2 flex items-end">
                 <div>
-                     <label for="stars" class="block text-sm font-medium text-gray-300">Minimum Star Rating</label>
-                     <select id="stars" name="stars" class="mt-1 block w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                         <option value="">Any Rating</option>
-                         <option value="3">3 Stars & Up</option>
-                         <option value="4">4 Stars & Up</option>
-                         <option value="5">5 Stars</option>
-                     </select>
+                    <label for="stars" class="block text-sm font-medium text-gray-300">Minimum Star Rating</label>
+                    <select id="stars" name="stars"
+                        class="mt-1 block w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                        <option value="">Any Rating</option>
+                        <option value="3">3 Stars & Up</option>
+                        <option value="4">4 Stars & Up</option>
+                        <option value="5">5 Stars</option>
+                    </select>
                 </div>
             </div>
-            
+
             <div class="lg:col-span-2 flex justify-end items-end">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all w-full md:w-auto">
+                <button type="submit"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-lg shadow-lg shadow-indigo-500/30 transition-all w-full md:w-auto">
                     Search Hotels <i class="fa-solid fa-arrow-right ml-2"></i>
                 </button>
             </div>
@@ -49,7 +56,7 @@
 
 <script>
     // Simple script to ensure check-out is after check-in
-    document.getElementById('check_in').addEventListener('change', function() {
+    document.getElementById('check_in').addEventListener('change', function () {
         var checkOutInput = document.getElementById('check_out');
         if (this.value) {
             checkOutInput.min = this.value;

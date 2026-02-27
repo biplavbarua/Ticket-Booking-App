@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from app.extensions import db
-from app.models import Flight, Booking
+from app.models import Flight, Booking, Seat
 
 flights_bp = Blueprint('flights', __name__)
 
@@ -104,13 +104,31 @@ def book(flight_id):
     passenger_names = [n.strip() for n in passenger_names if n.strip()]
     num_passengers = len(passenger_names) if passenger_names else 1
 
-    if flight.seats_available < num_passengers:
+    total_price = flight.price * num_passengers
+
+    # Atomic seat decrement to prevent race conditions
+    result = db.session.execute(
+        db.update(Flight)
+        .where(Flight.id == flight.id, Flight.seats_available >= num_passengers)
+        .values(seats_available=Flight.seats_available - num_passengers)
+    )
+    if result.rowcount == 0:
+        db.session.rollback()
         flash('Not enough seats available.', 'error')
         return redirect(url_for('flights.detail', flight_id=flight.id))
 
-    total_price = flight.price * num_passengers
-    import json
-    
+    # Handle seat selection
+    seat_ids = request.form.getlist('seat_ids[]')
+    seat_labels = []
+    if seat_ids:
+        seats = Seat.query.filter(
+            Seat.id.in_([int(sid) for sid in seat_ids]),
+            Seat.vehicle_type == 'flight',
+            Seat.vehicle_id == flight.id,
+            Seat.is_booked == False
+        ).all()
+        seat_labels = [s.seat_label for s in seats]
+
     booking = Booking(
         user_id=current_user.id,
         booking_type='flight',
@@ -119,10 +137,19 @@ def book(flight_id):
         num_guests=num_passengers,
         total_price=total_price,
         status='Pending',
+        seat_numbers=json.dumps(seat_labels) if seat_labels else None,
     )
-
-    flight.seats_available -= num_passengers
     db.session.add(booking)
+    db.session.flush()
+
+    # Mark seats as booked
+    if seat_ids:
+        Seat.query.filter(
+            Seat.id.in_([int(sid) for sid in seat_ids]),
+            Seat.vehicle_type == 'flight',
+            Seat.vehicle_id == flight.id,
+        ).update({Seat.is_booked: True, Seat.booking_id: booking.id}, synchronize_session=False)
+
     db.session.commit()
 
     flash('Booking created! Please complete payment.', 'success')

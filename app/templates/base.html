@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Instant theme application to prevent flash -->
     <script>
-        (function() {
+        (function () {
             var t = localStorage.getItem('py-booking-theme') || 'dark';
             document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Py-Booking — India's Smart Travel Platform</title>
+    <title>{% block title %}Py-Booking — India's Smart Travel Platform{% endblock %}</title>
     <meta name="description" content="Book flights, trains, buses, and hotels across India with Py-Booking.">
 
     <!-- Tailwind CSS CDN -->
@@ -21,7 +22,7 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        brand: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af', 900:'#1e3a8a' }
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' }
                     }
                 }
             }
@@ -31,7 +32,8 @@
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -39,6 +41,7 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body class="font-sans min-h-screen flex flex-col" style="background:var(--bg);color:var(--text)">
 
     <!-- 🇮🇳 Tricolor Stripe -->
@@ -49,7 +52,8 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 backdrop-blur-sm" style="background:var(--bg-white);border-bottom:1px solid var(--border)">
+    <nav class="sticky top-0 z-50 backdrop-blur-sm"
+        style="background:var(--bg-white);border-bottom:1px solid var(--border)">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
@@ -58,12 +62,13 @@
                         <span class="text-white text-lg">☸</span>
                     </div>
                     <div class="leading-tight">
-                        <span class="text-lg font-bold text-white tracking-tight block">Py-Booking</span>
-                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">Digital India (actually)</span>
+                        <span class="text-lg font-bold tracking-tight block" style="color:var(--text)">Py-Booking</span>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">Digital India
+                            (actually)</span>
                     </div>
                 </a>
 
-                <!-- Main Nav Links -->
+                <!-- Main Nav Links (Desktop) -->
                 <div class="hidden md:flex items-center gap-1">
                     <a href="{{ url_for('flights.search_page') }}" class="nav-link">
                         <i class="fa-solid fa-plane text-xs opacity-60"></i> Flights
@@ -79,6 +84,11 @@
                     </a>
                 </div>
 
+                <!-- Mobile Hamburger Button -->
+                <button id="mobile-menu-btn" class="md:hidden mobile-menu-btn" aria-label="Open menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
                 <!-- Auth Links -->
                 <div class="flex items-center gap-3">
                     <!-- Theme Toggle -->
@@ -86,41 +96,62 @@
                         <i class="fa-solid fa-moon"></i>
                     </button>
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('auth.profile') }}" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
-                            <i class="fa-solid fa-user text-xs mr-1 opacity-60"></i> {{ current_user.username }}
-                        </a>
-                        <a href="{{ url_for('auth.logout') }}" class="text-sm text-gray-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
-                            Logout
-                        </a>
+                    <a href="{{ url_for('auth.profile') }}"
+                        class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                        <i class="fa-solid fa-user text-xs mr-1 opacity-60"></i> {{ current_user.username }}
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}"
+                        class="text-sm text-gray-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                        Logout
+                    </a>
                     {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
-                            Log in
-                        </a>
-                        <a href="{{ url_for('auth.signup') }}" class="text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-1.5 rounded-lg transition-colors">
-                            Sign Up
-                        </a>
+                    <a href="{{ url_for('auth.login') }}"
+                        class="text-sm text-gray-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800">
+                        Log in
+                    </a>
+                    <a href="{{ url_for('auth.signup') }}"
+                        class="text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-1.5 rounded-lg transition-colors">
+                        Sign Up
+                    </a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav" class="mobile-nav hidden">
+        <a href="{{ url_for('flights.search_page') }}" class="mobile-nav-link">
+            <i class="fa-solid fa-plane"></i> Flights
+        </a>
+        <a href="{{ url_for('trains.search_page') }}" class="mobile-nav-link">
+            <i class="fa-solid fa-train"></i> Trains
+        </a>
+        <a href="{{ url_for('buses.search_page') }}" class="mobile-nav-link">
+            <i class="fa-solid fa-bus"></i> Buses
+        </a>
+        <a href="{{ url_for('hotels.search_page') }}" class="mobile-nav-link">
+            <i class="fa-solid fa-hotel"></i> Hotels
+        </a>
+    </div>
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="max-w-4xl mx-auto px-4 mt-4 space-y-2">
-            {% for category, message in messages %}
-            <div class="flash-msg flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border
+    {% if messages %}
+    <div class="max-w-4xl mx-auto px-4 mt-4 space-y-2">
+        {% for category, message in messages %}
+        <div class="flash-msg flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium border
                 {% if category == 'error' %}bg-red-950/50 text-red-300 border-red-800/50
                 {% elif category == 'success' %}bg-emerald-950/50 text-emerald-300 border-emerald-800/50
                 {% elif category == 'warning' %}bg-amber-950/50 text-amber-300 border-amber-800/50
                 {% else %}bg-blue-950/50 text-blue-300 border-blue-800/50{% endif %}">
-                <i class="fa-solid {% if category == 'error' %}fa-circle-xmark{% elif category == 'success' %}fa-circle-check{% elif category == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
-                {{ message }}
-            </div>
-            {% endfor %}
+            <i
+                class="fa-solid {% if category == 'error' %}fa-circle-xmark{% elif category == 'success' %}fa-circle-check{% elif category == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+            {{ message }}
         </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
     <!-- Main Content -->
@@ -136,7 +167,7 @@
                 <div>
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-2xl">🐍</span>
-                        <span class="text-lg font-bold text-white tracking-tight">Py-Booking</span>
+                        <span class="text-lg font-bold tracking-tight" style="color:var(--text)">Py-Booking</span>
                     </div>
                     <p class="text-sm text-gray-500 leading-relaxed max-w-xs">
                         No errors. Just bookings.<br>
@@ -148,10 +179,14 @@
                 <div>
                     <h4 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Quick Links</h4>
                     <div class="space-y-2 text-sm">
-                        <a href="{{ url_for('flights.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">✈️ Flights</a>
-                        <a href="{{ url_for('trains.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">🚂 Trains</a>
-                        <a href="{{ url_for('buses.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">🚌 Buses</a>
-                        <a href="{{ url_for('hotels.search_page') }}" class="block text-gray-500 hover:text-white transition-colors">🏨 Hotels</a>
+                        <a href="{{ url_for('flights.search_page') }}"
+                            class="block text-gray-500 hover:text-white transition-colors">✈️ Flights</a>
+                        <a href="{{ url_for('trains.search_page') }}"
+                            class="block text-gray-500 hover:text-white transition-colors">🚂 Trains</a>
+                        <a href="{{ url_for('buses.search_page') }}"
+                            class="block text-gray-500 hover:text-white transition-colors">🚌 Buses</a>
+                        <a href="{{ url_for('hotels.search_page') }}"
+                            class="block text-gray-500 hover:text-white transition-colors">🏨 Hotels</a>
                     </div>
                 </div>
 
@@ -175,7 +210,8 @@
     </footer>
 
     <!-- Global Loading Overlay -->
-    <div id="global-loader" class="fixed inset-0 z-[9999] bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+    <div id="global-loader"
+        class="fixed inset-0 z-[9999] bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
         <div class="w-10 h-10 border-3 border-gray-700 border-t-brand-500 rounded-full animate-spin mb-4"></div>
         <p id="loader-text" class="text-gray-300 text-sm font-medium">Loading...</p>
     </div>
@@ -210,4 +246,5 @@
     <!-- App JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
+
 </html>

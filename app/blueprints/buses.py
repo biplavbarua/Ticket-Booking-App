@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from app.extensions import db
-from app.models import Bus, Booking
+from app.models import Bus, Booking, Seat
 
 buses_bp = Blueprint('buses', __name__)
 
@@ -95,7 +95,29 @@ def book(bus_id):
         return redirect(url_for('buses.detail', bus_id=bus.id))
 
     total_price = bus.price * num_passengers
-    import json
+
+    # Atomic seat decrement to prevent race conditions
+    result = db.session.execute(
+        db.update(Bus)
+        .where(Bus.id == bus.id, Bus.seats_available >= num_passengers)
+        .values(seats_available=Bus.seats_available - num_passengers)
+    )
+    if result.rowcount == 0:
+        db.session.rollback()
+        flash('Not enough seats available.', 'error')
+        return redirect(url_for('buses.detail', bus_id=bus.id))
+
+    # Handle seat selection
+    seat_ids = request.form.getlist('seat_ids[]')
+    seat_labels = []
+    if seat_ids:
+        seats = Seat.query.filter(
+            Seat.id.in_([int(sid) for sid in seat_ids]),
+            Seat.vehicle_type == 'bus',
+            Seat.vehicle_id == bus.id,
+            Seat.is_booked == False
+        ).all()
+        seat_labels = [s.seat_label for s in seats]
 
     booking = Booking(
         user_id=current_user.id,
@@ -105,10 +127,19 @@ def book(bus_id):
         num_guests=num_passengers,
         total_price=total_price,
         status='Pending',
+        seat_numbers=json.dumps(seat_labels) if seat_labels else None,
     )
-
-    bus.seats_available -= num_passengers
     db.session.add(booking)
+    db.session.flush()
+
+    # Mark seats as booked
+    if seat_ids:
+        Seat.query.filter(
+            Seat.id.in_([int(sid) for sid in seat_ids]),
+            Seat.vehicle_type == 'bus',
+            Seat.vehicle_id == bus.id,
+        ).update({Seat.is_booked: True, Seat.booking_id: booking.id}, synchronize_session=False)
+
     db.session.commit()
 
     flash('Booking created! Please complete payment.', 'success')

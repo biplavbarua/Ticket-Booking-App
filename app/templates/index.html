@@ -28,15 +28,18 @@
             </div>
 
             <!-- FLIGHTS -->
-            <form id="form-flights" action="{{ url_for('flights.search') }}" method="GET" class="search-form tab-content active">
+            <form id="form-flights" action="{{ url_for('flights.search') }}" method="GET"
+                class="search-form tab-content active">
                 <div class="form-row text-left">
                     <div class="form-group input-floating">
-                        <input type="text" name="origin" id="flight-origin" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="origin" id="flight-origin" class="input city-autocomplete"
+                            placeholder=" " required autocomplete="off">
                         <i class="fa-solid fa-plane-departure input-icon"></i>
                         <label for="flight-origin">From (e.g. Delhi)</label>
                     </div>
                     <div class="form-group input-floating">
-                        <input type="text" name="destination" id="flight-dest" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="destination" id="flight-dest" class="input city-autocomplete"
+                            placeholder=" " required autocomplete="off">
                         <i class="fa-solid fa-plane-arrival input-icon"></i>
                         <label for="flight-dest">To (e.g. Mumbai)</label>
                     </div>
@@ -47,7 +50,8 @@
                     </div>
                 </div>
                 <div class="form-actions mt-4 text-center">
-                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Flights</button>
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i>
+                        Search Flights</button>
                 </div>
             </form>
 
@@ -55,12 +59,14 @@
             <form id="form-trains" action="{{ url_for('trains.search') }}" method="GET" class="search-form tab-content">
                 <div class="form-row text-left">
                     <div class="form-group input-floating">
-                        <input type="text" name="origin" id="train-origin" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="origin" id="train-origin" class="input city-autocomplete"
+                            placeholder=" " autocomplete="off">
                         <i class="fa-solid fa-train input-icon"></i>
                         <label for="train-origin">From (e.g. New Delhi)</label>
                     </div>
                     <div class="form-group input-floating">
-                        <input type="text" name="destination" id="train-dest" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="destination" id="train-dest" class="input city-autocomplete"
+                            placeholder=" " autocomplete="off">
                         <i class="fa-solid fa-train input-icon"></i>
                         <label for="train-dest">To (e.g. Mumbai Central)</label>
                     </div>
@@ -71,20 +77,23 @@
                     </div>
                 </div>
                 <div class="form-actions mt-4 text-center">
-                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Trains</button>
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i>
+                        Search Trains</button>
                 </div>
             </form>
-            
+
             <!-- BUSES -->
             <form id="form-buses" action="{{ url_for('buses.search') }}" method="GET" class="search-form tab-content">
                 <div class="form-row text-left">
                     <div class="form-group input-floating">
-                        <input type="text" name="origin" id="bus-origin" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="origin" id="bus-origin" class="input city-autocomplete" placeholder=" "
+                            autocomplete="off">
                         <i class="fa-solid fa-map-pin input-icon"></i>
                         <label for="bus-origin">From (e.g. Delhi)</label>
                     </div>
                     <div class="form-group input-floating">
-                        <input type="text" name="destination" id="bus-dest" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="destination" id="bus-dest" class="input city-autocomplete"
+                            placeholder=" " autocomplete="off">
                         <i class="fa-solid fa-map-pin input-icon"></i>
                         <label for="bus-dest">To (e.g. Jaipur)</label>
                     </div>
@@ -95,7 +104,8 @@
                     </div>
                 </div>
                 <div class="form-actions mt-4 text-center">
-                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Buses</button>
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i>
+                        Search Buses</button>
                 </div>
             </form>
 
@@ -103,23 +113,25 @@
             <form id="form-hotels" action="{{ url_for('hotels.search') }}" method="GET" class="search-form tab-content">
                 <div class="form-row text-left">
                     <div class="form-group input-floating">
-                        <input type="text" name="city" id="hotel-city" class="input city-autocomplete" placeholder=" " required autocomplete="off">
+                        <input type="text" name="city" id="hotel-city" class="input city-autocomplete" placeholder=" "
+                            autocomplete="off">
                         <i class="fa-solid fa-city input-icon"></i>
                         <label for="hotel-city">City (e.g. Mumbai)</label>
                     </div>
                     <div class="form-group input-floating">
-                        <input type="date" name="check_in" id="hotel-check_in" class="input" placeholder=" " required>
+                        <input type="date" name="check_in" id="hotel-check_in" class="input" placeholder=" ">
                         <i class="fa-solid fa-arrow-right-to-bracket input-icon"></i>
                         <label for="hotel-check_in">Check-in</label>
                     </div>
                     <div class="form-group input-floating">
-                        <input type="date" name="check_out" id="hotel-check_out" class="input" placeholder=" " required>
+                        <input type="date" name="check_out" id="hotel-check_out" class="input" placeholder=" ">
                         <i class="fa-solid fa-arrow-right-from-bracket input-icon"></i>
                         <label for="hotel-check_out">Check-out</label>
                     </div>
                 </div>
                 <div class="form-actions mt-4 text-center">
-                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i> Search Hotels</button>
+                    <button type="submit" class="btn btn--primary btn--lg"><i class="fa-solid fa-magnifying-glass"></i>
+                        Search Hotels</button>
                 </div>
             </form>
 
@@ -128,7 +140,8 @@
 </div>
 
 <div class="features mt-12 mb-20 text-center">
-    <h2 class="text-3xl font-bold mb-3 text-white">Why <span class="text-orange-400">Not</span> IRCTC?</h2>
+    <h2 class="text-3xl font-bold mb-3" style="color:var(--text)">Why <span class="text-orange-400">Not</span> IRCTC?
+    </h2>
     <p class="text-gray-500 text-sm mb-12">We fixed everything they forgot to.</p>
     <div class="features-grid" style="grid-template-columns: repeat(4, 1fr);">
         <div class="feature-card">
@@ -159,7 +172,8 @@
     <p class="text-gray-500 text-sm">Where India loves to travel. Pick a city, we'll handle the rest.</p>
     <div class="destinations-grid">
         <div class="dest-card">
-            <img src="{{ url_for('static', filename='images/delhi.png') }}" alt="Delhi cityscape featuring India Gate at dusk" loading="lazy">
+            <img src="{{ url_for('static', filename='images/delhi.png') }}"
+                alt="Delhi cityscape featuring India Gate at dusk" loading="lazy">
             <span class="dest-tag"><i class="fa-solid fa-fire"></i> Trending</span>
             <div class="dest-overlay">
                 <h3>Delhi</h3>
@@ -167,7 +181,8 @@
             </div>
         </div>
         <div class="dest-card">
-            <img src="{{ url_for('static', filename='images/mumbai.png') }}" alt="Mumbai skyline at sunset with Gateway of India" loading="lazy">
+            <img src="{{ url_for('static', filename='images/mumbai.png') }}"
+                alt="Mumbai skyline at sunset with Gateway of India" loading="lazy">
             <span class="dest-tag"><i class="fa-solid fa-star"></i> Popular</span>
             <div class="dest-overlay">
                 <h3>Mumbai</h3>
@@ -182,9 +197,11 @@
     <h2 style="color:var(--text);font-size:1.5rem;font-weight:800;margin-bottom:1.5rem;text-align:center">
         <i class="fa-solid fa-calendar-days text-orange-400 mr-2"></i>Fare Calendar
     </h2>
-    <p style="color:var(--text-muted);text-align:center;margin-bottom:1.5rem;font-size:0.9rem">Find the cheapest travel dates at a glance</p>
+    <p style="color:var(--text-muted);text-align:center;margin-bottom:1.5rem;font-size:0.9rem">Find the cheapest travel
+        dates at a glance</p>
 
-    <div class="fare-calendar-controls" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:1.5rem">
+    <div class="fare-calendar-controls"
+        style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:1.5rem">
         <select id="cal-type" class="cal-select">
             <option value="flight">✈️ Flights</option>
             <option value="train">🚂 Trains</option>

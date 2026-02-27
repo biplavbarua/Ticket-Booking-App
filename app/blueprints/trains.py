@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from app.extensions import db
-from app.models import Train, Booking
+from app.models import Train, Booking, Seat
 
 trains_bp = Blueprint('trains', __name__)
 
@@ -67,7 +67,7 @@ def pnr_status():
     """Check PNR status for an existing booking."""
     pnr_input = request.args.get('pnr', '').strip().upper()
     if pnr_input:
-        booking = Booking.query.filter_by(pnr=pnr_input, booking_type='train').first()
+        booking = Booking.query.filter_by(pnr=pnr_input).first()
         if booking:
             return render_template('trains/pnr.html', booking=booking)
         else:
@@ -96,10 +96,6 @@ def book(train_id):
     passenger_names = [n.strip() for n in passenger_names if n.strip()]
     num_passengers = len(passenger_names) if passenger_names else 1
 
-    if train.seats_available < num_passengers:
-        flash('Not enough seats available.', 'error')
-        return redirect(url_for('trains.detail', train_id=train.id))
-
     classes = train.get_classes()
     price_per = classes.get(travel_class, 0)
     if not price_per:
@@ -107,8 +103,30 @@ def book(train_id):
         return redirect(url_for('trains.detail', train_id=train.id))
 
     total_price = price_per * num_passengers
-    import json
-    
+
+    # Atomic seat decrement to prevent race conditions
+    result = db.session.execute(
+        db.update(Train)
+        .where(Train.id == train.id, Train.seats_available >= num_passengers)
+        .values(seats_available=Train.seats_available - num_passengers)
+    )
+    if result.rowcount == 0:
+        db.session.rollback()
+        flash('Not enough seats available.', 'error')
+        return redirect(url_for('trains.detail', train_id=train.id))
+
+    # Handle seat selection
+    seat_ids = request.form.getlist('seat_ids[]')
+    seat_labels = []
+    if seat_ids:
+        seats = Seat.query.filter(
+            Seat.id.in_([int(sid) for sid in seat_ids]),
+            Seat.vehicle_type == 'train',
+            Seat.vehicle_id == train.id,
+            Seat.is_booked == False
+        ).all()
+        seat_labels = [s.seat_label for s in seats]
+
     booking = Booking(
         user_id=current_user.id,
         booking_type='train',
@@ -118,10 +136,19 @@ def book(train_id):
         travel_class=travel_class,
         total_price=total_price,
         status='Pending',
+        seat_numbers=json.dumps(seat_labels) if seat_labels else None,
     )
-
-    train.seats_available -= num_passengers
     db.session.add(booking)
+    db.session.flush()
+
+    # Mark seats as booked
+    if seat_ids:
+        Seat.query.filter(
+            Seat.id.in_([int(sid) for sid in seat_ids]),
+            Seat.vehicle_type == 'train',
+            Seat.vehicle_id == train.id,
+        ).update({Seat.is_booked: True, Seat.booking_id: booking.id}, synchronize_session=False)
+
     db.session.commit()
 
     flash('Booking created! Please complete payment.', 'success')
